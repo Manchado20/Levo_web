@@ -1,0 +1,139 @@
+<div class="w-full max-w-3xl">
+
+    <!-- Form -->
+    <form [formGroup]="securityForm" autocomplete="off">
+
+        <!-- Section -->
+        <div class="w-full">
+            <div class="text-xl">Actualiza tu contraseña</div>
+            <!-- <div class="text-secondary">Realiza el cambio de tu contraseña si deseas mayor seguridad.</div> -->
+        </div>
+        <div class="grid sm:grid-cols-4 gap-6 w-full mt-8">
+            <!-- Current password -->
+            <div class="sm:col-span-4" style="display:none">
+                <label for="">Escribe tu contraseña actual</label>
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <mat-label>Escribe tu contraseña actual</mat-label>
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:key'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'currentPassword'"
+                        type="password"
+                        placeholder="**********"
+                        autocomplete="off"
+                        matInput>
+                </mat-form-field>
+            </div>
+            <!-- New password -->
+            <div class="sm:col-span-4">
+                <label for="">Escribe tu nueva contraseña</label>
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <!-- <mat-label>Escribe tu nueva contraseña</mat-label> -->
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:key'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'newPassword'"
+                        type="password"
+                        placeholder="**********"
+                        autocomplete="do-not-autofill"
+                        matInput>
+                </mat-form-field>
+                <div class="mt-1 text-md text-hint">Longitud de 5 a 12 caracteres. Puede incluir números, letras, y símbolos.</div>
+            </div>
+            <!-- Confirm new password -->
+            <div class="sm:col-span-4">
+                <label for="">Confirma tu nueva contraseña</label>
+                <mat-form-field class="fuse-mat-no-subscript w-full">
+                    <!-- <mat-label>Confirma tu nueva contraseña</mat-label> -->
+                    <mat-icon
+                        class="icon-size-5"
+                        [svgIcon]="'heroicons_solid:key'"
+                        matPrefix></mat-icon>
+                    <input
+                        [formControlName]="'confirmPassword'"
+                        type="password"
+                        placeholder="**********"
+                        autocomplete="do-not-autofill"
+                        matInput>
+                </mat-form-field>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <!-- <div class="my-10 border-t"></div> -->
+
+        <!-- Section -->
+<!--         <div class="w-full">
+            <div class="text-xl">Security preferences</div>
+            <div class="text-secondary">Keep your account more secure with following preferences.</div>
+        </div>
+        <div class="grid sm:grid-cols-4 gap-6 w-full mt-8"> -->
+            <!-- 2-step auth -->
+            <!-- <div class="sm:col-span-4 flex items-center justify-between">
+                <div
+                    class="flex-auto cursor-pointer"
+                    (click)="twoStepToggle.toggle()">
+                    <div class="leading-6 font-medium">Enable 2-step authentication</div>
+                    <div class="text-md text-secondary">
+                        Protects you against password theft by requesting an authentication code via SMS on every login.
+                    </div>
+                </div>
+                <mat-slide-toggle
+                    class="ml-4"
+                    [color]="'primary'"
+                    [formControlName]="'twoStep'"
+                    #twoStepToggle>
+                </mat-slide-toggle>
+            </div> -->
+            <!-- Ask to change password -->
+            <!-- <div class="sm:col-span-4 flex items-center justify-between">
+                <div
+                    class="flex-auto cursor-pointer"
+                    (click)="askPasswordChangeToggle.toggle()">
+                    <div class="leading-6 font-medium">Ask to change password on every 6 months</div>
+                    <div class="text-md text-secondary">
+                        A simple but an effective way to be protected against data leaks and password theft.
+                    </div>
+                </div>
+                <mat-slide-toggle
+                    class="ml-4"
+                    [color]="'primary'"
+                    [formControlName]="'askPasswordChange'"
+                    #askPasswordChangeToggle>
+                </mat-slide-toggle>
+            </div>
+        </div> -->
+
+        <div *ngIf="alert.message != ''" class="mt-5">
+            <label *ngIf="alert.type == 'success'" style="color:green">{{alert.message}}</label>
+            <label *ngIf="alert.type == 'error'" style="color:red">{{alert.message}}</label>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-5 border-t"></div>
+        <!-- Actions -->
+        <div class="flex items-center justify-end">
+            <button
+                mat-stroked-button
+                type="button"
+                (click)="cancel()"
+                [disabled]="updating">
+                Cancelar
+            </button>
+            <button
+                class="ml-4"
+                mat-flat-button
+                type="button"
+                (click)="update()"
+                [color]="'primary'"
+                [disabled]="updating">
+                Actualizar
+            </button>
+        </div>
+    </form>
+
+</div>

@@ -1,0 +1,129 @@
+<div class="flex flex-col flex-auto min-w-0">
+
+        <!-- Round -->
+        <div *ngIf="roundStatus == 'playing'" class="flex-auto p-8">
+            <div class="flex justify-between">
+                <div>
+                    <button mat-flat-button color="warn" (click)="stopRound()" [disabled]="responded">Terminar</button>
+                </div>
+                <div class="text-5xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate ng-star-inserted">
+                    {{currentItemNumber}}/10
+                </div>
+                <div>
+                    <button mat-flat-button color="primary" (click)="respondCard(true)" [disabled]="responded">Siguiente</button>
+                </div>
+            </div>
+            <div class="pt-8">
+                <mat-progress-bar #progressBar mode="determinate" [color]="progressBarColor" [value]="progressBarValue"></mat-progress-bar>
+            </div>
+            <div class="py-12">
+                <div class="grid grid-cols-12">
+                    <fuse-card #flashcard class="col-span-12 sm:col-start-2 sm:col-span-10 md:col-start-3 md:col-span-8 min-h-40" [flippable]="true">
+                        <!-- Front -->
+                        <ng-container fuseCardFront>
+                            <div class="flex flex-col px-8 py-6 pb-3">
+                                <div class="text-lg font-bold sm:text-2xl lg:text-3xl">(<i>{{currentItem.type}}</i>). {{currentItem.type=='verb' ? 'to' : ''}} {{currentItem.word}}</div>
+                                <div class="mt-2 sm:text-2xl lg:text-2xl">
+                                    {{currentItem.example}}
+                                </div>
+                                <div class="mt-3 -mx-3 self-end">
+                                    <!-- <button mat-icon-button [color]="'primary'" (click)="flashcard.face = 'back'">
+                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:eye'"></mat-icon>
+                                    </button> -->
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- Back -->
+                        <ng-container fuseCardBack [ngClass]="fuse-card-success">
+                            <div class="flex justify-end">
+                                <div *ngIf="response.toLowerCase().trim() === currentItem.translation && currentItem.translation" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-green-500 bg-green-100 dark:text-green-50 dark:bg-green-500">
+                                    <mat-icon class="text-current" [svgIcon]="'heroicons_solid:badge-check'"></mat-icon>
+                                </div>
+                                <div *ngIf="response.toLowerCase().trim() !== currentItem.translation && currentItem.translation" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-red-600 bg-red-100 dark:text-red-50 dark:bg-red-600">
+                                    <mat-icon class="text-current" [svgIcon]="'heroicons_solid:exclamation'"></mat-icon>
+                                </div>
+                            </div>
+                            <div class="flex flex-col h-full justify-center items-center">
+                                <div class="text-4xl sm:text-4xl lg:text-5xl font-bold pb-10">{{currentItem.translation}}</div>
+                            </div>
+                        </ng-container>
+                    </fuse-card>
+                </div>
+            </div>
+            <div class="grid grid-cols-12 pb-5">
+                <div class="col-span-12 sm:col-start-2 sm:col-span-10 md:col-start-3 md:col-span-8">
+                    <div class="flex items-end">
+                        <mat-form-field class="fuse-mat-dense fuse-mat-no-subscript fuse-mat-rounded fuse-mat-bold w-full">
+                            <input #inputResponse matInput type="text" class="min-h-5 my-0 resize-none" style="margin: 11px 0 !important; padding: 0 !important;"
+                                (keydown.enter)="respondCard(false)" [(ngModel)]="response" autocomplete="off" [disabled]="responded" />
+                        </mat-form-field>
+                        <div class="flex items-center h-11 my-px ml-4">
+                            <button #buttonResponse mat-fab (click)="respondCard(false)" (skipCard)="respondCard(true)" [disabled]="responded">
+                                <mat-icon class="transform rotate-90" [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div *ngIf="roundStatus == 'end'" class="m-4 p-10 shadow rounded-2xl bg-card">
+            <div class="flex items-center pb-2">
+                <div class="flex flex-col">
+                    <div class="mr-4 text-4xl md:text-4xl tracking-tight leading-6 font-semibold">Resultados</div>
+                </div>
+            </div>
+            <div class="my-8 space-y-8">
+                <div class="flex flex-col">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-14 h-14 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+                            <mat-icon class="text-current" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                        </div>
+                        <div class="flex-auto ml-4 leading-none">
+                            <div class="text-sm font-medium text-secondary">Correctas</div>
+                            <div class="mt-2 font-medium text-2xl">{{correctResponses}} palabras ({{(correctResponses/10)*100}}%)</div>
+                            <mat-progress-bar class="mt-3 rounded-full" [mode]="'determinate'" [value]="(correctResponses/10)*100"></mat-progress-bar>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-14 h-14 rounded bg-red-100 text-red-800 dark:bg-red-600 dark:text-red-50">
+                            <mat-icon class="text-current" [svgIcon]="'heroicons_outline:exclamation'"></mat-icon>
+                        </div>
+                        <div class="flex-auto ml-4 leading-none">
+                            <div class="text-sm font-medium text-secondary">Incorrectas</div>
+                            <div class="mt-2 font-medium text-2xl">{{10-correctResponses}} palabras ({{((10-correctResponses)/10)*100}}%)</div>
+                            <mat-progress-bar class="mt-3 rounded-full" [color]="'warn'" [mode]="'determinate'" [value]="((10-correctResponses)/10)*100"></mat-progress-bar>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-14 h-14 rounded bg-teal-100 text-teal-800 dark:bg-teal-600 dark:text-teal-50">
+                            <mat-icon class="text-current" [svgIcon]="'heroicons_outline:light-bulb'"></mat-icon>
+                        </div>
+                        <div class="flex-auto ml-4 leading-none">
+                            <div class="text-sm font-medium text-secondary">Tiempo promedio de respuesta</div>
+                            <div class="mt-2 font-medium text-2xl">{{averageResponseTime}} segundos</div>
+                            <mat-progress-bar class="mt-3 rounded-full" [color]="'accent'" [mode]="'determinate'" [value]="(averageResponseTime/progressBarTime)*100"></mat-progress-bar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-5 py-6">
+                <button (click)="restartRound()" class="fuse-mat-button-rounded col-span-2 sm:col-span-1" mat-flat-button [color]="'primary'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:play'"></mat-icon>
+                    <span class="ml-2">Practicar de nuevo</span>
+                </button>
+                <button [routerLink]="'/practicar'" class="fuse-mat-button-rounded col-span-2 sm:col-span-1" mat-flat-button [color]="'warn'">
+                    <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:reply'"></mat-icon>
+                    <span class="ml-2">Ir a selección</span>
+                </button>
+            </div>
+        </div>
+
+</div>
+

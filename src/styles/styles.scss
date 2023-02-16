@@ -1,0 +1,20 @@
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Import/write your custom styles here.
+/*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
+/* ----------------------------------------------------------------------------------------------------- */
+.no-show {
+    display: contents !important;
+}
+
+
+.fuse-card-front, .fuse-card-back {
+    border: 1px solid #cbd5e1 !important;
+}
+
+.fuse-card-success {
+    border: 1px solid #43a547 !important;
+}
+
+.fuse-card-danger {
+    border: 1px solid #f23a2f !important;
+}
