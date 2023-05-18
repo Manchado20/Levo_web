@@ -74,6 +74,7 @@ export const appRoutes: Route[] = [
         },
         children   : [
             {path: 'inicio', loadChildren: () => import('app/modules/admin/home/home.module').then(m => m.HomeModule)},
+            {path: 'home', loadChildren: () => import('app/modules/admin/words/words.module').then(m => m.WordsModule)},
             {path: 'practicar', loadChildren: () => import('app/modules/admin/game/game.module').then(m => m.GameModule)},
             {path: 'estadisticas', loadChildren: () => import('app/modules/admin/statistics/statistics.module').then(m => m.StatistcsModule)},
             {path: 'configuracion', loadChildren: () => import('app/modules/admin/settings/settings.module').then(m => m.SettingsModule)},

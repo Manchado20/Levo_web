@@ -76,8 +76,9 @@ export class NoAuthGuard implements CanActivate, CanActivateChild, CanLoad
                            // If the user is authenticated...
                            if ( authenticated )
                            {
+                                console.log(authenticated);
                                // Redirect to the root
-                               this._router.navigate(['inicio']);
+                                this._router.navigate(['home']);
 
                                // Prevent the access
                                return of(false);

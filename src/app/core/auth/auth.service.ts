@@ -10,6 +10,7 @@ import { environment } from 'environments/environment';
 export class AuthService
 {
     private _authenticated: boolean = false;
+    private _isAdmin: boolean = false;
 
     /**
      * Constructor
@@ -93,6 +94,9 @@ export class AuthService
 
                 // Set the authenticated flag to true
                 this._authenticated = true;
+
+                //Set value is session Admin
+                this._isAdmin = response.isAdmin;
 
                 // Store the user on the user service
                 this._userService.user = response.user;
