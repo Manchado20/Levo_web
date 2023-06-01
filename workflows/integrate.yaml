@@ -1,0 +1,32 @@
+name: Angular CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.TEST }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '14.x'
+    # - name: Clean Node Modules
+    #   run: rm -rf node_modules package-lock.json
+    - name: Install Node Modules
+      run: npm install
+    - name: Install Dependencies
+      run: npm i -g @angular/cli
+    - name: Build
+      run: ng build --configuration production --output-path docs --base-href "https://manchado20.github.io/ci_dynamic_table/docs/"
+      # run: ng build --output-path docs --base-href https://manchado20.github.io/ci_dynamic_table/
+      # - name: Test
+      #   run: ng test --browsers=ChromeHeadless --no-watch --code-coverage --source-map=false
