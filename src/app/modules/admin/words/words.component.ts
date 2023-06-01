@@ -50,6 +50,7 @@ export class WordsComponent implements OnInit, OnDestroy
     {
     }
 
+    words:any = [];
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -123,7 +124,26 @@ export class WordsComponent implements OnInit, OnDestroy
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+    getWords(): any {
+        this._WordsService.GetWords().subscribe(( res: any) => {
+            setTimeout(() => {
+                this.words = res.items[0].words;
+                console.log(this.words); 
+                let p = '';
+                Object.keys(this.words).forEach((key)=>{ 
+                   p += '<div><p class="word-name">'+ key +'</p></div>';
+                })
 
+                document.getElementsByClassName("content-words")[0].innerHTML = p;
+                // for (let index = 0; index < this.words.length; index++) {
+                //     console.log('hola'); 
+                //     console.log(index);
+                //     document.getElementsByClassName("word-name")[0].innerHTML  += this.words[index];
+                // }
+               
+            }, 3000);
+          }); 
+    }
     /**
      * Track by function for ngFor loops
      *

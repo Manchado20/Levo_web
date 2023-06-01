@@ -21,13 +21,15 @@
                             position: relative;top: 12px;"><i class="fa fa-cog" aria-hidden="true" style="font-size: 25px;"></i></button>
                         </div>
                         <div class="container-words" style="text-align: center;">
-                            <div class="content-words" style="width: 100%; height: 300px; border:1px solid black; margin-bottom: 11px;">
-    
+                            <div class="content-words" style="width: 100%; height: 300px; border:1px solid black; margin-bottom: 11px;overflow: scroll;
+                            height: 80vh;">
+                                <!-- <div class="words">
+                                </div> -->
                             </div>
                             <button type="button" class="" style="padding: 10px 25px;
                             background: #0F172A;
                             color: white;
-                            border-radius: 5px;">Procesar</button>
+                            border-radius: 5px;" (click)="getWords()">Procesar</button>
                         </div>
                     </div>
                 </div>
