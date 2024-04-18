@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApexOptions } from 'ng-apexcharts';
 import { WordsService } from './words.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
     selector       : 'words',
@@ -36,6 +37,9 @@ export class WordsComponent implements OnInit, OnDestroy
         },
         words: []
     };
+
+    word: any;
+    spinner: boolean = false;
     dtOptions: DataTables.Settings = {};
     selectedProject: string = 'ACME Corp. Backend App';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -45,7 +49,8 @@ export class WordsComponent implements OnInit, OnDestroy
      */
     constructor(
         private _WordsService: WordsService,
-        private _router: Router
+        private _router: Router,
+        private cdr: ChangeDetectorRef
     )
     {
     }
@@ -125,24 +130,34 @@ export class WordsComponent implements OnInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
     getWords(): any {
+        this.spinner = true;
         this._WordsService.GetWords().subscribe(( res: any) => {
-            setTimeout(() => {
-                this.words = res.items[0].words;
-                console.log(this.words); 
+            let words = res;
+            let data_words = [];
                 let p = '';
-                Object.keys(this.words).forEach((key)=>{ 
-                   p += '<div><p class="word-name">'+ key +'</p></div>';
+                p += '<div class="container-words" style="text-align: start;">';
+                    Object.keys(words).forEach((key, value)=>{ 
+                    data_words =  words[key];
+                     // Crear un objeto con los datos que deseas pasar a openModalWord
+                    let wordData = {
+                        name: words[key].name,
+                        definition_english: words[key].definition_english,
+                        definition_spanish: words[key].definition_spanish
+                    };
+                    p += '<button class="btn btn-dark word-name" style="margin:25px" onclick="openModalWord(' + "'" + JSON.stringify(wordData).replace(/"/g, '&quot;') + "'" + ')">' + words[key].name + '</button>';
                 })
 
-                document.getElementsByClassName("content-words")[0].innerHTML = p;
-                // for (let index = 0; index < this.words.length; index++) {
-                //     console.log('hola'); 
-                //     console.log(index);
-                //     document.getElementsByClassName("word-name")[0].innerHTML  += this.words[index];
-                // }
-               
-            }, 3000);
+                p += '</div>';
+                this.spinner = false;
+                this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
+                document.getElementsByClassName("content-words")[0].innerHTML = p; 
           }); 
+    }
+
+    openModalWord(data: any) {
+        console.log('entro');
+        console.log(data);
+        // this.word = data[0].name;
     }
     /**
      * Track by function for ngFor loops

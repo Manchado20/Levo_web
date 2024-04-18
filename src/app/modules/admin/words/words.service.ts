@@ -74,6 +74,6 @@ export class WordsService
         headers=headers.append('content-type','application/x-www-form-urlencoded')
         headers=headers.append('customer-header', 'custom')
 
-        return this._httpClient.get('https://manchadosgallery.manchadosinc.com/test.php');
+        return this._httpClient.get('http://localhost:8000/extracted-words');
     }
 }
