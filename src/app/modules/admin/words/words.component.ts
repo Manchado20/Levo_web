@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApexOptions } from 'ng-apexcharts';
 import { WordsService } from './words.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
 
 @Component({
     selector       : 'words',
@@ -38,11 +39,14 @@ export class WordsComponent implements OnInit, OnDestroy
         words: []
     };
 
-    word: any;
+    word: string = "";
+    descrpcion_english: string = "";
+    descrpcion_spanish: string = "";
     spinner: boolean = false;
     dtOptions: DataTables.Settings = {};
     selectedProject: string = 'ACME Corp. Backend App';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+    // @ViewChild('modalWord') modalWord: ElementRef;  
 
     /**
      * Constructor
@@ -50,12 +54,16 @@ export class WordsComponent implements OnInit, OnDestroy
     constructor(
         private _WordsService: WordsService,
         private _router: Router,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private modalService: MdbModalService
     )
     {
     }
 
     words:any = [];
+    modalRef: MdbModalRef<WordsComponent> | null = null;
+    @ViewChild('modalWord', { static: false })  content: any;
+
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -133,9 +141,16 @@ export class WordsComponent implements OnInit, OnDestroy
         this.spinner = true;
         this._WordsService.GetWords().subscribe(( res: any) => {
             let words = res;
+            sessionStorage.setItem("words", JSON.stringify(words))
             let data_words = [];
                 let p = '';
                 p += '<div class="container-words" style="text-align: start;">';
+
+                    // if(  JSON.parse(sessionStorage.getItem("data") ) ) {
+
+                    // }
+
+                    const data = JSON.parse(sessionStorage.getItem("data"));
                     Object.keys(words).forEach((key, value)=>{ 
                     data_words =  words[key];
                      // Crear un objeto con los datos que deseas pasar a openModalWord
@@ -144,21 +159,82 @@ export class WordsComponent implements OnInit, OnDestroy
                         definition_english: words[key].definition_english,
                         definition_spanish: words[key].definition_spanish
                     };
-                    p += '<button class="btn btn-dark word-name" style="margin:25px" onclick="openModalWord(' + "'" + JSON.stringify(wordData).replace(/"/g, '&quot;') + "'" + ')">' + words[key].name + '</button>';
+                    p += '<button class="btn btn-dark word-name" style="margin:25px" data-word=\'' + JSON.stringify(wordData) + '\'>' + words[key].name + '</button>';
                 })
 
                 p += '</div>';
                 this.spinner = false;
                 this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
                 document.getElementsByClassName("content-words")[0].innerHTML = p; 
+                 // Asignar eventos de clic a los botones después de agregarlos al DOM
+                const buttons = document.querySelectorAll('.word-name');
+                buttons.forEach(button => {
+                    button.addEventListener('click', this.openModalWord.bind(this));
+                });
           }); 
     }
 
-    openModalWord(data: any) {
-        console.log('entro');
-        console.log(data);
-        // this.word = data[0].name;
+    getWordsDEMO(): any {
+        this.spinner = true;
+        let words = JSON.parse(sessionStorage.getItem("words"));
+        let data_words = [];
+        let p = '';
+        p += '<div class="container-words" style="text-align: start;">';
+            Object.keys(words).forEach((key, value)=>{ 
+            console.log(words, ' words');
+            data_words =  words[key];
+            // Crear un objeto con los datos que deseas pasar a openModalWord
+            let wordData = {
+                name: words[key].name,
+                definition_english: words[key].definition_english,
+                definition_spanish: words[key].definition_spanish
+            };
+            console.log(wordData, 'wordsDATA');
+            p += '<button class="btn btn-dark word-name" style="margin:25px" data-word='+ JSON.stringify(wordData) + '>' + words[key].name + '</button>';
+        })
+
+        p += '</div>';
+        this.spinner = false;
+        this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
+        document.getElementsByClassName("content-words")[0].innerHTML = p; 
+            // Asignar eventos de clic a los botones después de agregarlos al DOM
+        const buttons = document.querySelectorAll('.word-name');
+        buttons.forEach(button => {
+            button.addEventListener('click', this.openModalWord.bind(this));
+        });
     }
+
+    openModalWord(event: any) {
+        const wordData = JSON.parse(event.currentTarget.getAttribute('data-word'));
+        const modelDiv = document.getElementById('modal-word');
+        this.word = wordData.name;
+        this.descrpcion_english = wordData.definition_english;
+        this.descrpcion_spanish = wordData.definition_spanish;
+        if (modelDiv != null) {
+            modelDiv.style.display = 'block';
+            modelDiv.querySelector('.modal-title').innerHTML = this.word;
+            modelDiv.querySelector('.container-english').innerHTML += this.descrpcion_english;
+            modelDiv.querySelector('.container-spanish').innerHTML += this.descrpcion_spanish;
+        }
+        console.log(this.word);
+    }
+
+    openModel() {
+        const modelDiv = document.getElementById('modal-word');
+        if(modelDiv!= null) {
+          modelDiv.style.display = 'block';
+        } 
+      }
+
+    
+      CloseModel() {
+        const modelDiv = document.getElementById('modal-word');
+        if(modelDiv!= null) {
+          modelDiv.querySelector('.container-english').innerHTML = "";
+          modelDiv.querySelector('.container-spanish').innerHTML = "";
+          modelDiv.style.display = 'none';
+        } 
+      }
     /**
      * Track by function for ngFor loops
      *

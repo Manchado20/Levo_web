@@ -14,7 +14,7 @@
                                 class="icon-size-5"
                                 [svgIcon]="'heroicons_solid:bell'"></mat-icon> -->
                             <div class="ml-1.5 leading-6 text-secondary" style="width: 100%;">El proceso de extracción se realizará de manera automatizada a partir de una cantidad de libros en formato PDF.</div>
-                            <button type="button" class="" style="padding: 10px 25px;
+                            <button type="button" class="btn btn-dark" style="padding: 10px 25px;
                             background: #0F172A;
                             color: white;
                             border-radius: 5px;
@@ -35,7 +35,7 @@
                             </div>                            
                         </div>
                         <div class="container-button-process-word text-center">
-                            <button type="button" class="" style="padding: 10px 25px;
+                            <button type="button" class="btn btn-dark" style="padding: 10px 25px;
                             background: #0F172A;
                             color: white;
                             border-radius: 5px;" (click)="getWords()">Procesar</button>
@@ -48,23 +48,35 @@
 
 </div>
 
+<div id="modal-word" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-uppercase" id="exampleModalLongTitle">{{ this.word }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="CloseModel()">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+            <div class="container-descripcion text-justify">
+                <div class="container-english mb-3">
+                    <p style="font-weight: 700;">En inglés:</p>
+                    {{ this.descrpcion_english }}
+                </div>
+ 
+                <div class="container-spanish">
+                    <p style="font-weight: 700;">En español:</p>
+                    {{ this.descrpcion_spanish }}
+                </div>
+            </div>
 
-<div id="modal-word" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ word }}</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Modal body text goes here.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Save changes</button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="CloseModel()">Cerrar</button>
+            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+          </div>
         </div>
       </div>
-    </div>
   </div>
