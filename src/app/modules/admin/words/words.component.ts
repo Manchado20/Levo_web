@@ -138,6 +138,8 @@ export class WordsComponent implements OnInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
     getWords(): any {
+        const container_words = document.getElementById('container-words-id');
+        container_words.querySelector('.content-words').innerHTML = "";
         this.spinner = true;
         this._WordsService.GetWords().subscribe(( res: any) => {
             let words = res;
