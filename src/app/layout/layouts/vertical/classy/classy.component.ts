@@ -20,7 +20,7 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     navigation: Navigation;
     user: User;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    rol_user: String = "";
     /**
      * Constructor
      */
@@ -68,6 +68,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             .pipe((takeUntil(this._unsubscribeAll)))
             .subscribe((user: User) => {
                 this.user = user;
+                this.rol_user = this.user.idAdmin == "1" ? "Administrador" : "Invitado";
+                console.log(user, 'user');
             });
 
         // Subscribe to media changes

@@ -88,21 +88,22 @@ export class AuthService
 
         return this._httpClient.post(environment.apiURL+'/login', credentials).pipe(
             switchMap((response: any) => {
-
+                console.log(response, ' responseee');
                 // Store the access token in the local storage
-                this.accessToken = response.accessToken;
+                let data = response.data;
+                this.accessToken = data.accessToken;
 
                 // Set the authenticated flag to true
                 this._authenticated = true;
 
                 //Set value is session Admin
-                this._isAdmin = response.isAdmin;
-
+                this._isAdmin = data.isAdmin;
+                sessionStorage.setItem('isAdmin',  this._isAdmin.toString());
                 // Store the user on the user service
-                this._userService.user = response.user;
+                this._userService.user = data.user;
 
                 // Return a new observable with the response
-                return of(response);
+                return of(data);
             })
         );
     }

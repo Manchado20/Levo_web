@@ -10,6 +10,7 @@ import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
 @Component({
     selector       : 'words',
     templateUrl    : './words.component.html',
+    styleUrls: ['./words.component.css'], // Aquí se incluye el archivo CSS
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -146,22 +147,24 @@ export class WordsComponent implements OnInit, OnDestroy
             sessionStorage.setItem("words", JSON.stringify(words))
             let data_words = [];
                 let p = '';
-                p += '<div class="container-words" style="text-align: start;">';
-
-                    // if(  JSON.parse(sessionStorage.getItem("data") ) ) {
-
-                    // }
-
-                    const data = JSON.parse(sessionStorage.getItem("data"));
-                    Object.keys(words).forEach((key, value)=>{ 
+                p += '<div class="container-words d-flex" "style="flex-wrap: wrap;">';
+                
+                const data = JSON.parse(sessionStorage.getItem("data"));
+                Object.keys(words).forEach((key, value)=>{ 
                     data_words =  words[key];
+                    var word_definition_english = words[key].definition_english.replace(/'/g, '"');
+                    var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
                      // Crear un objeto con los datos que deseas pasar a openModalWord
                     let wordData = {
                         name: words[key].name,
-                        definition_english: words[key].definition_english,
-                        definition_spanish: words[key].definition_spanish
+                        definition_english: word_definition_english,
+                        definition_spanish: word_definition_spanish
                     };
-                    p += '<button class="btn btn-dark word-name" style="margin:25px" data-word=\'' + JSON.stringify(wordData) + '\'>' + words[key].name + '</button>';
+                    p += `<div class='container-word'>
+                            <span class="close-button" id="boxclose">X</span>
+                            <button class="btn btn-dark word-name" style="margin:25px" data-word='${JSON.stringify(wordData)}'>${words[key].name}</button>
+                        </div> 
+                        `;
                 })
 
                 p += '</div>';
@@ -186,10 +189,13 @@ export class WordsComponent implements OnInit, OnDestroy
             console.log(words, ' words');
             data_words =  words[key];
             // Crear un objeto con los datos que deseas pasar a openModalWord
+            var word_definition_english = words[key].definition_english.replace(/'/g, '"');
+            var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
+
             let wordData = {
                 name: words[key].name,
-                definition_english: words[key].definition_english,
-                definition_spanish: words[key].definition_spanish
+                definition_english: word_definition_english,
+                definition_spanish: word_definition_spanish
             };
             console.log(wordData, 'wordsDATA');
             p += '<button class="btn btn-dark word-name" style="margin:25px" data-word='+ JSON.stringify(wordData) + '>' + words[key].name + '</button>';
@@ -215,8 +221,15 @@ export class WordsComponent implements OnInit, OnDestroy
         if (modelDiv != null) {
             modelDiv.style.display = 'block';
             modelDiv.querySelector('.modal-title').innerHTML = this.word;
-            modelDiv.querySelector('.container-english').innerHTML += this.descrpcion_english;
-            modelDiv.querySelector('.container-spanish').innerHTML += this.descrpcion_spanish;
+            modelDiv.querySelector('.container-english').innerHTML += `
+                <p style="font-weight: 700;">En inglés:</p>
+                ${this.descrpcion_english}
+            `;
+
+            modelDiv.querySelector('.container-spanish').innerHTML += `
+                <p style="font-weight: 700;">En Español:</p>
+                ${this.descrpcion_spanish}
+            `;
         }
         console.log(this.word);
     }
@@ -232,8 +245,8 @@ export class WordsComponent implements OnInit, OnDestroy
       CloseModel() {
         const modelDiv = document.getElementById('modal-word');
         if(modelDiv!= null) {
-          modelDiv.querySelector('.container-english').innerHTML = "";
-          modelDiv.querySelector('.container-spanish').innerHTML = "";
+          modelDiv.querySelector('.container-english').textContent = "";
+          modelDiv.querySelector('.container-spanish').textContent = "";
           modelDiv.style.display = 'none';
         } 
       }
