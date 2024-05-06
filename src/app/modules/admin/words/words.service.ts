@@ -76,4 +76,27 @@ export class WordsService
 
         return this._httpClient.get('http://localhost:8000/extracted-words');
     }
+
+
+    saveConfigWords(categoria: string, num_libros: number, num_paginas: number, user: string): Observable<any>
+    {
+        let data = {
+            "categoria" : categoria,
+            "num_libros" : num_libros,
+            "num_paginas" : num_paginas,
+            "user" : user,
+        };
+        return this._httpClient.post(environment.apiURL+'/save-config-words', data);
+    }
+
+    getConfigWords(user: string): Observable<any>
+    {
+        let data = {
+            "user" : user,
+        };
+        
+        return this._httpClient.post(environment.apiURL+'/get-config-words', data);
+    }
+
+    
 }

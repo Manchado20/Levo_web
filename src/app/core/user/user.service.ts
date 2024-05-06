@@ -52,6 +52,7 @@ export class UserService
             tap((user) => {
                 let data = AuthUtils.getAccessTokenPayload(localStorage.getItem('accessToken'));
                 console.log(data, ' data');
+                sessionStorage.setItem('user',  data.user.toString());
                 let isAdmin = sessionStorage.getItem('isAdmin') == "1" ? "1" : "0";
                 user.idAdmin = isAdmin;
                 user.name = data.name;

@@ -6,6 +6,9 @@ import { ApexOptions } from 'ng-apexcharts';
 import { WordsService } from './words.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2'
+import { User } from 'app/core/user/user.types';
 
 @Component({
     selector       : 'words',
@@ -16,6 +19,7 @@ import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
 })
 export class WordsComponent implements OnInit, OnDestroy
 {
+    myForm: FormGroup;
     chartGithubIssues: ApexOptions = {};
     chartTaskDistribution: ApexOptions = {};
     chartBudgetDistribution: ApexOptions = {};
@@ -47,8 +51,9 @@ export class WordsComponent implements OnInit, OnDestroy
     dtOptions: DataTables.Settings = {};
     selectedProject: string = 'ACME Corp. Backend App';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-    // @ViewChild('modalWord') modalWord: ElementRef;  
-
+    @ViewChild('selectBooksRef') selectBooksRef: ElementRef;
+    user:any = sessionStorage.getItem('user');
+    titulo_modal_btn = "Guardar";
     /**
      * Constructor
      */
@@ -56,9 +61,14 @@ export class WordsComponent implements OnInit, OnDestroy
         private _WordsService: WordsService,
         private _router: Router,
         private cdr: ChangeDetectorRef,
-        private modalService: MdbModalService
+        private modalService: MdbModalService     
     )
     {
+        this.myForm = new FormGroup({
+            selectBooks: new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)]),
+            numBooks: new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)]),
+            numPages:new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)])
+        });
     }
 
     words:any = [];
@@ -133,6 +143,74 @@ export class WordsComponent implements OnInit, OnDestroy
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
+    }
+
+    getDataConfig() {
+        this._WordsService.getConfigWords(this.user).subscribe(( res: any) => {
+            if(res) {
+                if (res.configWords.length > 0) {
+                    this.titulo_modal_btn = 'Actualizar';
+                    
+                    const datos = res.configWords[0]; // Si hay múltiples configWords, puedes elegir uno, o iterar sobre ellos
+                    this.myForm.patchValue({
+                      selectBooks: datos.categoria,
+                      numBooks: datos.num_libros,
+                      numPages: datos.num_paginas
+                    });
+ 
+                } else {
+                    this.titulo_modal_btn = 'Guardar';
+                }
+            } else {
+                console.log('error');
+            }
+
+
+        });
+    }
+
+    onSubmit() {
+        console.log('submit');
+        if (this.myForm.valid) {
+            const selectBooksValue = this.myForm.get('selectBooks').value;
+            const selectElement = this.selectBooksRef.nativeElement;
+            const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
+            const numBooksValue = this.myForm.get('numBooks').value;
+            const numPagesValue = this.myForm.get('numPages').value;
+
+            this._WordsService.saveConfigWords(selectTextBook, numBooksValue, numPagesValue, this.user).subscribe(( res: any) => {
+                if(res.status) {
+                    this.CloseModelConfig();
+                    let texto = '';
+                    if(res.tipo_proceso == 'insert') {
+                        texto = 'Los datos se han guardado correctamente.';
+                    } else {
+                        texto = 'Los datos se han actualizado correctamente.';
+
+                    }
+
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: texto,
+                        icon: "success"
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Favor de revisar la información.",
+                    });
+                }
+            });
+
+        } else {
+          // Si el formulario no es válido, mostrar un mensaje de error o realizar alguna acción adecuada
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Favor de revisar la información.",
+          });
+        }
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -238,6 +316,21 @@ export class WordsComponent implements OnInit, OnDestroy
         const modelDiv = document.getElementById('modal-word');
         if(modelDiv!= null) {
           modelDiv.style.display = 'block';
+        } 
+    }
+
+    openModelConfig() {
+        const modelDiv = document.getElementById('modal-config-word');
+        if(modelDiv!= null) {
+            modelDiv.style.display = 'block';
+            this.getDataConfig();            
+        } 
+    }
+
+    CloseModelConfig() {
+        const modelDiv = document.getElementById('modal-config-word');
+        if(modelDiv!= null) {
+          modelDiv.style.display = 'none';
         } 
       }
 
@@ -670,3 +763,7 @@ export class WordsComponent implements OnInit, OnDestroy
         }; */
     }
 }
+function subscribe(arg0: (res: any) => void) {
+    throw new Error('Function not implemented.');
+}
+

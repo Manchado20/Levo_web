@@ -1,5 +1,4 @@
 <div class="flex flex-col flex-auto min-w-0">
-
     <!-- Header -->
     <div class="bg-card">
         <div class="flex flex-col w-full max-w-screen-xl mx-auto px-6 sm:px-8">
@@ -7,74 +6,285 @@
                 <div class="items-center min-w-0">
                     <div class="flex flex-col min-w-0 ml-4">
                         <ng-container *transloco="let t">
-                            <div class="text-2xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate">Extracción de palabras</div>
+                            <div
+                                class="text-2xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate"
+                            >
+                                Extracción de palabras
+                            </div>
                         </ng-container>
-                        <div class="flex items-center" style="margin-bottom: 10px;">
-                            <!-- <mat-icon
-                                class="icon-size-5"
-                                [svgIcon]="'heroicons_solid:bell'"></mat-icon> -->
-                            <div class="ml-1.5 leading-6 text-secondary" style="width: 100%;">El proceso de extracción se realizará de manera automatizada a partir de una cantidad de libros en formato PDF.</div>
-                            <button type="button" class="btn btn-dark" style="padding: 10px 25px;
-                            background: #0F172A;
-                            color: white;
-                            border-radius: 5px;
-                            position: relative;"><i class="fa fa-cog" aria-hidden="true" style="font-size: 25px;"></i></button>
+                        <div
+                            class="flex items-center"
+                            style="margin-bottom: 10px"                       
+                         >
+                           
+                            <div
+                                class="ml-1.5 leading-6 text-secondary"
+                                style="width: 100%"
+                            >
+                                El proceso de extracción se realizará de manera
+                                automatizada a partir de una cantidad de libros
+                                en formato PDF.
+                            </div>
+                            <div class="containe-result-config-word">
+
+                            </div>
+                            <button
+                                type="button"
+                                class="btn btn-dark"
+                                style="
+                                    padding: 10px 25px;
+                                    background: #0f172a;
+                                    color: white;
+                                    border-radius: 5px;
+                                    position: relative;
+                                "
+                                (click)="openModelConfig()"
+                            >
+                                <i
+                                    class="fa fa-cog"
+                                    aria-hidden="true"
+                                    style="font-size: 25px"
+                                ></i>
+                            </button>
                         </div>
-                        <div id="container-words-id" class="container-words" style="text-align: center;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        width: 100%;">
-                            <div class="spinner-border" style="position: absolute; width: 4rem; height: 4rem;" role="status" *ngIf="spinner">
+                        <div
+                            id="container-words-id"
+                            class="container-words"
+                            style="
+                                text-align: center;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                width: 100%;
+                            "
+                        >
+                            <div
+                                class="spinner-border"
+                                style="
+                                    position: absolute;
+                                    width: 4rem;
+                                    height: 4rem;
+                                "
+                                role="status"
+                                *ngIf="spinner"
+                            >
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <div class="content-words" style="width: 100%; height: 300px; border:1px solid black; margin-bottom: 11px;overflow: scroll;
-                            min-height: 63vh;">
+                            <div
+                                class="content-words"
+                                style="
+                                    width: 100%;
+                                    height: 300px;
+                                    border: 1px solid black;
+                                    margin-bottom: 11px;
+                                    overflow: scroll;
+                                    min-height: 63vh;
+                                "
+                            >
                                 <!-- <div class="words">
                                 </div> -->
-                            </div>                            
+                            </div>
                         </div>
                         <div class="container-button-process-word text-center">
-                            <button type="button" class="btn btn-dark" style="padding: 10px 25px;
-                            background: #0F172A;
-                            color: white;
-                            border-radius: 5px;" (click)="getWords()">Procesar</button>
+                            <button
+                                type="button"
+                                class="btn btn-dark"
+                                style="
+                                    padding: 10px 25px;
+                                    background: #0f172a;
+                                    color: white;
+                                    border-radius: 5px;
+                                "
+                                (click)="getWords()"
+                            >
+                                Procesar
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
-<div id="modal-word" class="modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+<div
+    id="modal-word"
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    data-backdrop="static"
+    data-keyboard="false"
+>
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title text-uppercase" id="exampleModalLongTitle">{{ this.word }}</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" (click)="CloseModel()">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            
-            <div class="container-descripcion text-justify">
-                <div class="container-english mb-3">
-                    {{ this.descrpcion_english }}
-                </div>
- 
-                <div class="container-spanish">
-                    {{ this.descrpcion_spanish }}
+            <div class="modal-header">
+                <h5
+                    class="modal-title text-uppercase"
+                    id="exampleModalLongTitle"
+                >
+                    {{ this.word }}
+                </h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                    (click)="CloseModel()"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-descripcion text-justify">
+                    <div class="container-english mb-3">
+                        {{ this.descrpcion_english }}
+                    </div>
+
+                    <div class="container-spanish">
+                        {{ this.descrpcion_spanish }}
+                    </div>
                 </div>
             </div>
-
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="CloseModel()">Cerrar</button>
-            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-          </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-dismiss="modal"
+                    (click)="CloseModel()"
+                >
+                    Cerrar
+                </button>
+                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+            </div>
         </div>
-      </div>
-  </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div
+    id="modal-config-word"
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    data-backdrop="static"
+    data-keyboard="false"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header headerRegister">
+                <h5 class="modal-title" id="titleModal">Configuración</h5>
+                <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close" 
+                    (click)="CloseModelConfig()"
+                >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+                    <div class="form-row">
+                        <div class="form-group col-md-6 selectEstado">
+                            <label for="listBook">Categorías de libros</label>
+                            <select
+                                class="form-control"
+                                id="listBook"
+                                formControlName="selectBooks"
+                                #selectBooksRef
+                            >
+                                <option selected>Selecciona una opción</option>
+                                <option value="Todos">
+                                   Todos
+                                </option>
+                                <option value="Algorithms & Datastructures">
+                                    Algorithms & Datastructures
+                                </option>
+                                <option value="Software Architecture">Software Architecture</option>
+                                <option value="Compiler">Compiler</option>
+                                <option value="Open Source">Open Source</option>
+                                <option value="Linux">Linux</option>
+                                <option value="Android">Android</option>
+                                <option value="Java">Java</option>
+                                <option value="iOS">iOS</option>
+                                <option value="C Programming">C Programming</option>
+                                <option value="Javascript">Javascript</option>
+                                <option value="Math">Math</option>
+                                <option value="Data Science / Machine Learning">
+                                    Data Science / Machine Learning
+                                </option>
+                            </select>
+                            <div *ngIf="myForm.get('selectBooks').errors && myForm.get('selectBooks').touched">
+                                <div *ngIf="myForm.get('selectBooks').errors.required" class="text-danger">
+                                    Este campo es obligatorio.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="numBooks">Número de libros</label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="numBooks"
+                                formControlName="numBooks"
+                                min="0"
+                                max="100"
+                            />
+                            <div *ngIf="myForm.get('numBooks').errors && myForm.get('numBooks').touched">
+                                <div *ngIf="myForm.get('numBooks').errors.required" class="text-danger">
+                                    Este campo es obligatorio.
+                                </div>
+                                <div *ngIf="myForm.get('numBooks').errors.max" class="text-danger">
+                                    El valor máximo permitido es 100.
+                                </div>
+                                <div *ngIf="myForm.get('numBooks').errors.min" class="text-danger">
+                                    El valor mínimo permitido es 0.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="numPages">Número de páginas</label>
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="numPages"
+                                formControlName="numPages"
+                                min="0"
+                                max="100"
+                            />
+                            <div *ngIf="myForm.get('numPages').errors && myForm.get('numPages').touched">
+                                <div *ngIf="myForm.get('numPages').errors.required" class="text-danger">
+                                    Este campo es obligatorio.
+                                </div>
+                                <div *ngIf="myForm.get(numPages).errors.max" class="text-danger">
+                                    El valor máximo permitido es 100.
+                                </div>
+                                <div *ngIf="myForm.get(numPages).errors.min" class="text-danger">
+                                    El valor mínimo permitido es 0.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="submit"
+                            class="btn btn-dark"                   
+                        >
+                           {{ this.titulo_modal_btn }}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-dismiss="modal"
+                            (click)="CloseModelConfig()"
+                        >
+                            Cerrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
