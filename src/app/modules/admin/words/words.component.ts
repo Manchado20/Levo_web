@@ -54,6 +54,7 @@ export class WordsComponent implements OnInit, OnDestroy
     @ViewChild('selectBooksRef') selectBooksRef: ElementRef;
     user:any = sessionStorage.getItem('user');
     titulo_modal_btn = "Guardar";
+    configuracion_words:any = [];
     /**
      * Constructor
      */
@@ -157,7 +158,17 @@ export class WordsComponent implements OnInit, OnDestroy
                       numBooks: datos.num_libros,
                       numPages: datos.num_paginas
                     });
- 
+
+                    const selectedDataId = datos.find(item => item.categoria === datos.categoria)?.dataId;
+
+                    this.configuracion_words = {
+                        "selectBooks" :  datos.categoria,
+                        "urlBooks" : selectedDataId,
+                        "numBooks" :  datos.num_libros,
+                        "numPages" :  datos.num_paginas,
+                    };
+
+                    sessionStorage.setItem("configuracion_words", JSON.stringify(this.configuracion_words))
                 } else {
                     this.titulo_modal_btn = 'Guardar';
                 }
@@ -174,12 +185,24 @@ export class WordsComponent implements OnInit, OnDestroy
         if (this.myForm.valid) {
             const selectBooksValue = this.myForm.get('selectBooks').value;
             const selectElement = this.selectBooksRef.nativeElement;
+            const selectOption = selectElement.options[selectElement.selectedIndex];
             const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
             const numBooksValue = this.myForm.get('numBooks').value;
             const numPagesValue = this.myForm.get('numPages').value;
+            const dataId = selectOption.getAttribute('data-id');
 
             this._WordsService.saveConfigWords(selectTextBook, numBooksValue, numPagesValue, this.user).subscribe(( res: any) => {
                 if(res.status) {
+
+                    this.configuracion_words = {
+                        "selectBooks" :  selectTextBook,
+                        "urlBooks" : dataId,
+                        "numBooks" :  numBooksValue,
+                        "numPages" :  numPagesValue,
+                    };
+ 
+                    sessionStorage.setItem("configuracion_words", JSON.stringify(this.configuracion_words))
+
                     this.CloseModelConfig();
                     let texto = '';
                     if(res.tipo_proceso == 'insert') {
@@ -238,21 +261,46 @@ export class WordsComponent implements OnInit, OnDestroy
               
                 const container_words = document.getElementById('container-words-id');
                 container_words.querySelector('.content-words').innerHTML = "";
-                this.spinner = true;
+                container_words.querySelector('.content-words').innerHTML += `
+                    <div
+                        class="spinner-border"
+                        style="
+                            position: absolute;
+                            width: 4rem;
+                            height: 4rem;
+                        "
+                        role="status"
+                        *ngIf="spinner"
+                    >
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    `;
+                this.spinner = true; 
 
 
                 const selectBooksValue = this.myForm.get('selectBooks').value;
                 const selectElement = this.selectBooksRef.nativeElement;
-                const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
-                const numBooksValue = this.myForm.get('numBooks').value;
-                const numPagesValue = this.myForm.get('numPages').value;
+                // const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
 
-                this._WordsService.GetWords(selectTextBook, numBooksValue, numPagesValue).subscribe(( res: any) => {
+                let selectTextBook = "all";
+                let numBooksValue =  0;
+                let numPagesValue = 0;
+                let urlBook = "all";
+                
+                const configuracion_words = JSON.parse(sessionStorage.getItem("configuracion_words"));
+                if(configuracion_words) {
+                    selectTextBook = configuracion_words.selectBooks;
+                    numBooksValue = configuracion_words.numBooks;
+                    numPagesValue = configuracion_words.numPages;
+                    urlBook = configuracion_words.urlBooks;
+                }
+
+                this._WordsService.GetWords(selectTextBook, urlBook, numBooksValue, numPagesValue).subscribe(( res: any) => {
                 let words = res;
                 sessionStorage.setItem("words", JSON.stringify(words))
                 let data_words = [];
                     let p = '';
-                    p += '<div class="container-words d-flex" "style="flex-wrap: wrap;">';
+                    p += '<div class="container-words d-flex">';
                     
                     const data = JSON.parse(sessionStorage.getItem("data"));
                     Object.keys(words).forEach((key, value)=>{ 

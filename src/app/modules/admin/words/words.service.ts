@@ -67,14 +67,14 @@ export class WordsService
         );
     }
 
-    GetWords(selectTextBook: string, numBooksValue: number, numPagesValue: number) {
+    GetWords(selectTextBook: string, url_category: string, numBooksValue: number, numPagesValue: number) {
         let headers = new HttpHeaders()
         headers=headers.append('content-type','application/json')
         headers=headers.append('Access-Control-Allow-Origin', '*')
         headers=headers.append('content-type','application/x-www-form-urlencoded')
         headers=headers.append('customer-header', 'custom')
 
-        const url = `http://localhost:8000/extracted-words?category=${selectTextBook}&num_book=${numBooksValue}&num_page=${numPagesValue}`;
+        const url = `http://localhost:8000/extracted-words?category=${selectTextBook}&url_category=${url_category}&num_book=${numBooksValue}&num_page=${numPagesValue}`;
         return this._httpClient.get(url, { headers: headers });   
      }
 

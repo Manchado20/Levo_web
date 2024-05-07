@@ -58,18 +58,7 @@
                                 width: 100%;
                             "
                         >
-                            <div
-                                class="spinner-border"
-                                style="
-                                    position: absolute;
-                                    width: 4rem;
-                                    height: 4rem;
-                                "
-                                role="status"
-                                *ngIf="spinner"
-                            >
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
+                        
                             <div
                                 class="content-words"
                                 style="
@@ -196,23 +185,23 @@
                                 #selectBooksRef
                             >
                                 <option selected>Selecciona una opción</option>
-                                <option value="Todos">
+                                <option value="Todos" data-id="Todos">
                                    Todos
                                 </option>
-                                <option value="Algorithms & Datastructures">
+                                <option value="Algorithms & Datastructures" data-id="/CSBooks_PDFs.html">
                                     Algorithms & Datastructures
                                 </option>
-                                <option value="Software Architecture">Software Architecture</option>
-                                <option value="Compiler">Compiler</option>
-                                <option value="Open Source">Open Source</option>
-                                <option value="Linux">Linux</option>
-                                <option value="Android">Android</option>
-                                <option value="Java">Java</option>
-                                <option value="iOS">iOS</option>
-                                <option value="C Programming">C Programming</option>
-                                <option value="Javascript">Javascript</option>
-                                <option value="Math">Math</option>
-                                <option value="Data Science / Machine Learning">
+                                <option value="Software Architecture" data-id="books_pdfs/CSSoftware_Architecture.html">Software Architecture</option>
+                                <option value="Compiler" data-id="books_pdfs/CSCompiler.html">Compiler</option>
+                                <option value="Open Source" data-id="books_pdfs/CSSoftware_Architecture.html">Open Source</option>
+                                <option value="Linux" data-id="books_pdfs/CSLinux.html">Linux</option>
+                                <option value="Android" data-id="books_pdfs/CSAndroid.html">Android</option>
+                                <option value="Java" data-id="books_pdfs/CSJava.html">Java</option>
+                                <option value="iOS" data-id="books_pdfs/CSiOS.html">iOS</option>
+                                <option value="C Programming" data-id="books_pdfs/CSC_Programming.html">C Programming</option>
+                                <option value="Javascript" data-id="books_pdfs/CSJavascript.html">Javascript</option>
+                                <option value="Math" data-id="books_pdfs/CSDataScienceML.html">Math</option>
+                                <option value="Data Science / Machine Learning" data-id="books_pdfs/CSSoftware_Architecture.html">
                                     Data Science / Machine Learning
                                 </option>
                             </select>

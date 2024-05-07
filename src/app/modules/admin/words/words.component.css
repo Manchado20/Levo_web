@@ -35,3 +35,15 @@ a.boxclose{
 .btn-confirm-process-word {
     margin-right: 17px;
 }
+
+.container-words {
+    flex-wrap: wrap;
+}
+
+.content-words {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
