@@ -4,5 +4,6 @@ export const user = {
     name  : 'Invitado',
     email : 'invitado@levoapp.xyz',
     avatar: 'assets/images/avatars/male-00.jpg',
-    status: 'online'
+    status: 'online',
+    idAdmin: 0
 };

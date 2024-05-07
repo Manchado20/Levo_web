@@ -51,6 +51,11 @@ export class UserService
         return this._httpClient.get<User>('api/common/user').pipe(
             tap((user) => {
                 let data = AuthUtils.getAccessTokenPayload(localStorage.getItem('accessToken'));
+                console.log(data, ' data');
+                sessionStorage.setItem('user',  data.user.toString());
+                let isAdmin = sessionStorage.getItem('isAdmin') == "1" ? "1" : "0";
+                user.idAdmin = isAdmin;
+                user.name = data.name;
                 user.email = data.email;
                 this._user.next(user);
             })

@@ -1,18 +1,25 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ApexOptions } from 'ng-apexcharts';
 import { WordsService } from './words.service';
+import { ChangeDetectorRef } from '@angular/core';
+import { MdbModalRef, MdbModalService } from 'mdb-angular-ui-kit/modal';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2'
+import { User } from 'app/core/user/user.types';
 
 @Component({
     selector       : 'words',
     templateUrl    : './words.component.html',
+    styleUrls: ['./words.component.css'], // Aquí se incluye el archivo CSS
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WordsComponent implements OnInit, OnDestroy
 {
+    myForm: FormGroup;
     chartGithubIssues: ApexOptions = {};
     chartTaskDistribution: ApexOptions = {};
     chartBudgetDistribution: ApexOptions = {};
@@ -36,21 +43,38 @@ export class WordsComponent implements OnInit, OnDestroy
         },
         words: []
     };
+
+    word: string = "";
+    descrpcion_english: string = "";
+    descrpcion_spanish: string = "";
+    spinner: boolean = false;
     dtOptions: DataTables.Settings = {};
     selectedProject: string = 'ACME Corp. Backend App';
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    @ViewChild('selectBooksRef') selectBooksRef: ElementRef;
+    user:any = sessionStorage.getItem('user');
+    titulo_modal_btn = "Guardar";
     /**
      * Constructor
      */
     constructor(
         private _WordsService: WordsService,
-        private _router: Router
+        private _router: Router,
+        private cdr: ChangeDetectorRef,
+        private modalService: MdbModalService     
     )
     {
+        this.myForm = new FormGroup({
+            selectBooks: new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)]),
+            numBooks: new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)]),
+            numPages:new FormControl("", [Validators.required, Validators.max(100), Validators.min(0)])
+        });
     }
 
     words:any = [];
+    modalRef: MdbModalRef<WordsComponent> | null = null;
+    @ViewChild('modalWord', { static: false })  content: any;
+
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
     // -----------------------------------------------------------------------------------------------------
@@ -121,29 +145,246 @@ export class WordsComponent implements OnInit, OnDestroy
         this._unsubscribeAll.complete();
     }
 
+    getDataConfig() {
+        this._WordsService.getConfigWords(this.user).subscribe(( res: any) => {
+            if(res) {
+                if (res.configWords.length > 0) {
+                    this.titulo_modal_btn = 'Actualizar';
+                    
+                    const datos = res.configWords[0]; // Si hay múltiples configWords, puedes elegir uno, o iterar sobre ellos
+                    this.myForm.patchValue({
+                      selectBooks: datos.categoria,
+                      numBooks: datos.num_libros,
+                      numPages: datos.num_paginas
+                    });
+ 
+                } else {
+                    this.titulo_modal_btn = 'Guardar';
+                }
+            } else {
+                console.log('error');
+            }
+
+
+        });
+    }
+
+    onSubmit() {
+        console.log('submit');
+        if (this.myForm.valid) {
+            const selectBooksValue = this.myForm.get('selectBooks').value;
+            const selectElement = this.selectBooksRef.nativeElement;
+            const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
+            const numBooksValue = this.myForm.get('numBooks').value;
+            const numPagesValue = this.myForm.get('numPages').value;
+
+            this._WordsService.saveConfigWords(selectTextBook, numBooksValue, numPagesValue, this.user).subscribe(( res: any) => {
+                if(res.status) {
+                    this.CloseModelConfig();
+                    let texto = '';
+                    if(res.tipo_proceso == 'insert') {
+                        texto = 'Los datos se han guardado correctamente.';
+                    } else {
+                        texto = 'Los datos se han actualizado correctamente.';
+
+                    }
+
+                    Swal.fire({
+                        title: "¡Éxito!",
+                        text: texto,
+                        icon: "success"
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Favor de revisar la información.",
+                    });
+                }
+            });
+
+        } else {
+          // Si el formulario no es válido, mostrar un mensaje de error o realizar alguna acción adecuada
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Favor de revisar la información.",
+          });
+        }
+    }
+
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
     getWords(): any {
-        this._WordsService.GetWords().subscribe(( res: any) => {
-            setTimeout(() => {
-                this.words = res.items[0].words;
-                console.log(this.words); 
-                let p = '';
-                Object.keys(this.words).forEach((key)=>{ 
-                   p += '<div><p class="word-name">'+ key +'</p></div>';
-                })
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: "btn btn-dark btn-confirm-process-word",
+              cancelButton: "btn btn-secondary"
+            },
+            buttonsStyling: false
+        });
 
-                document.getElementsByClassName("content-words")[0].innerHTML = p;
-                // for (let index = 0; index < this.words.length; index++) {
-                //     console.log('hola'); 
-                //     console.log(index);
-                //     document.getElementsByClassName("word-name")[0].innerHTML  += this.words[index];
-                // }
-               
-            }, 3000);
-          }); 
+        swalWithBootstrapButtons.fire({
+            title: "¿Está seguro de realizar el proceso de extracción con la configuración actual?",
+            text: "Puede ajustar el número de páginas, la categoría de libros desde el botón de configuración.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Continuar",
+            cancelButtonText: `Cancelar`
+          }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+              
+                const container_words = document.getElementById('container-words-id');
+                container_words.querySelector('.content-words').innerHTML = "";
+                this.spinner = true;
+
+
+                const selectBooksValue = this.myForm.get('selectBooks').value;
+                const selectElement = this.selectBooksRef.nativeElement;
+                const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
+                const numBooksValue = this.myForm.get('numBooks').value;
+                const numPagesValue = this.myForm.get('numPages').value;
+
+                this._WordsService.GetWords(selectTextBook, numBooksValue, numPagesValue).subscribe(( res: any) => {
+                let words = res;
+                sessionStorage.setItem("words", JSON.stringify(words))
+                let data_words = [];
+                    let p = '';
+                    p += '<div class="container-words d-flex" "style="flex-wrap: wrap;">';
+                    
+                    const data = JSON.parse(sessionStorage.getItem("data"));
+                    Object.keys(words).forEach((key, value)=>{ 
+                        data_words =  words[key];
+                        var word_definition_english = words[key].definition_english.replace(/'/g, '"');
+                        var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
+                        // Crear un objeto con los datos que deseas pasar a openModalWord
+                        let wordData = {
+                            name: words[key].name,
+                            definition_english: word_definition_english,
+                            definition_spanish: word_definition_spanish
+                        };
+                        p += `<div class='container-word'>
+                                <span class="close-button" id="boxclose">X</span>
+                                <button class="btn btn-dark word-name" style="margin:25px" data-word='${JSON.stringify(wordData)}'>${words[key].name}</button>
+                            </div> 
+                            `;
+                    })
+
+                    p += '</div>';
+                    this.spinner = false;
+                    this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
+                    document.getElementsByClassName("content-words")[0].innerHTML = p; 
+                    // Asignar eventos de clic a los botones después de agregarlos al DOM
+                    const buttons = document.querySelectorAll('.word-name');
+                    buttons.forEach(button => {
+                        button.addEventListener('click', this.openModalWord.bind(this));
+                    });
+                }); 
+
+            } else if (result.isDenied) {
+                console.log('cancela');
+            }
+        });
+
+
+
+
+
+
+
+
+
+
     }
+
+    getWordsDEMO(): any {
+        this.spinner = true;
+        let words = JSON.parse(sessionStorage.getItem("words"));
+        let data_words = [];
+        let p = '';
+        p += '<div class="container-words" style="text-align: start;">';
+            Object.keys(words).forEach((key, value)=>{ 
+            console.log(words, ' words');
+            data_words =  words[key];
+            // Crear un objeto con los datos que deseas pasar a openModalWord
+            var word_definition_english = words[key].definition_english.replace(/'/g, '"');
+            var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
+
+            let wordData = {
+                name: words[key].name,
+                definition_english: word_definition_english,
+                definition_spanish: word_definition_spanish
+            };
+            console.log(wordData, 'wordsDATA');
+            p += '<button class="btn btn-dark word-name" style="margin:25px" data-word='+ JSON.stringify(wordData) + '>' + words[key].name + '</button>';
+        })
+
+        p += '</div>';
+        this.spinner = false;
+        this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
+        document.getElementsByClassName("content-words")[0].innerHTML = p; 
+            // Asignar eventos de clic a los botones después de agregarlos al DOM
+        const buttons = document.querySelectorAll('.word-name');
+        buttons.forEach(button => {
+            button.addEventListener('click', this.openModalWord.bind(this));
+        });
+    }
+
+    openModalWord(event: any) {
+        const wordData = JSON.parse(event.currentTarget.getAttribute('data-word'));
+        const modelDiv = document.getElementById('modal-word');
+        this.word = wordData.name;
+        this.descrpcion_english = wordData.definition_english;
+        this.descrpcion_spanish = wordData.definition_spanish;
+        if (modelDiv != null) {
+            modelDiv.style.display = 'block';
+            modelDiv.querySelector('.modal-title').innerHTML = this.word;
+            modelDiv.querySelector('.container-english').innerHTML += `
+                <p style="font-weight: 700;">En inglés:</p>
+                ${this.descrpcion_english}
+            `;
+
+            modelDiv.querySelector('.container-spanish').innerHTML += `
+                <p style="font-weight: 700;">En Español:</p>
+                ${this.descrpcion_spanish}
+            `;
+        }
+        console.log(this.word);
+    }
+
+    openModel() {
+        const modelDiv = document.getElementById('modal-word');
+        if(modelDiv!= null) {
+          modelDiv.style.display = 'block';
+        } 
+    }
+
+    openModelConfig() {
+        const modelDiv = document.getElementById('modal-config-word');
+        if(modelDiv!= null) {
+            modelDiv.style.display = 'block';
+            this.getDataConfig();            
+        } 
+    }
+
+    CloseModelConfig() {
+        const modelDiv = document.getElementById('modal-config-word');
+        if(modelDiv!= null) {
+          modelDiv.style.display = 'none';
+        } 
+      }
+
+    
+      CloseModel() {
+        const modelDiv = document.getElementById('modal-word');
+        if(modelDiv!= null) {
+          modelDiv.querySelector('.container-english').textContent = "";
+          modelDiv.querySelector('.container-spanish').textContent = "";
+          modelDiv.style.display = 'none';
+        } 
+      }
     /**
      * Track by function for ngFor loops
      *
@@ -564,3 +805,7 @@ export class WordsComponent implements OnInit, OnDestroy
         }; */
     }
 }
+function subscribe(arg0: (res: any) => void) {
+    throw new Error('Function not implemented.');
+}
+
