@@ -80,7 +80,8 @@ export class AuthSignUpComponent implements OnInit
                 (response) => {
 
                     // Navigate to the confirmation required page
-                    this._router.navigateByUrl('/confirmation-required');
+                    // this._router.navigateByUrl('/confirmation-required');
+                    this._router.navigateByUrl('/iniciar-sesion');
                 },
                 (response) => {
 

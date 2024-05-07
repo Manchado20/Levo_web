@@ -67,15 +67,16 @@ export class WordsService
         );
     }
 
-    GetWords() {
+    GetWords(selectTextBook: string, numBooksValue: number, numPagesValue: number) {
         let headers = new HttpHeaders()
         headers=headers.append('content-type','application/json')
         headers=headers.append('Access-Control-Allow-Origin', '*')
         headers=headers.append('content-type','application/x-www-form-urlencoded')
         headers=headers.append('customer-header', 'custom')
 
-        return this._httpClient.get('http://localhost:8000/extracted-words');
-    }
+        const url = `http://localhost:8000/extracted-words?category=${selectTextBook}&num_book=${numBooksValue}&num_page=${numPagesValue}`;
+        return this._httpClient.get(url, { headers: headers });   
+     }
 
 
     saveConfigWords(categoria: string, num_libros: number, num_paginas: number, user: string): Observable<any>

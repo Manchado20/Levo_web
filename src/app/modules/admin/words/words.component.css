@@ -30,3 +30,8 @@ a.boxclose{
 .close-button:hover {
     color: #ff0000;
 }
+
+
+.btn-confirm-process-word {
+    margin-right: 17px;
+}

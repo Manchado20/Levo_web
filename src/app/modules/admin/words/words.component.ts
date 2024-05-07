@@ -217,44 +217,86 @@ export class WordsComponent implements OnInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
     getWords(): any {
-        const container_words = document.getElementById('container-words-id');
-        container_words.querySelector('.content-words').innerHTML = "";
-        this.spinner = true;
-        this._WordsService.GetWords().subscribe(( res: any) => {
-            let words = res;
-            sessionStorage.setItem("words", JSON.stringify(words))
-            let data_words = [];
-                let p = '';
-                p += '<div class="container-words d-flex" "style="flex-wrap: wrap;">';
-                
-                const data = JSON.parse(sessionStorage.getItem("data"));
-                Object.keys(words).forEach((key, value)=>{ 
-                    data_words =  words[key];
-                    var word_definition_english = words[key].definition_english.replace(/'/g, '"');
-                    var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
-                     // Crear un objeto con los datos que deseas pasar a openModalWord
-                    let wordData = {
-                        name: words[key].name,
-                        definition_english: word_definition_english,
-                        definition_spanish: word_definition_spanish
-                    };
-                    p += `<div class='container-word'>
-                            <span class="close-button" id="boxclose">X</span>
-                            <button class="btn btn-dark word-name" style="margin:25px" data-word='${JSON.stringify(wordData)}'>${words[key].name}</button>
-                        </div> 
-                        `;
-                })
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: "btn btn-dark btn-confirm-process-word",
+              cancelButton: "btn btn-secondary"
+            },
+            buttonsStyling: false
+        });
 
-                p += '</div>';
-                this.spinner = false;
-                this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
-                document.getElementsByClassName("content-words")[0].innerHTML = p; 
-                 // Asignar eventos de clic a los botones después de agregarlos al DOM
-                const buttons = document.querySelectorAll('.word-name');
-                buttons.forEach(button => {
-                    button.addEventListener('click', this.openModalWord.bind(this));
-                });
-          }); 
+        swalWithBootstrapButtons.fire({
+            title: "¿Está seguro de realizar el proceso de extracción con la configuración actual?",
+            text: "Puede ajustar el número de páginas, la categoría de libros desde el botón de configuración.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Continuar",
+            cancelButtonText: `Cancelar`
+          }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+              
+                const container_words = document.getElementById('container-words-id');
+                container_words.querySelector('.content-words').innerHTML = "";
+                this.spinner = true;
+
+
+                const selectBooksValue = this.myForm.get('selectBooks').value;
+                const selectElement = this.selectBooksRef.nativeElement;
+                const selectTextBook = selectElement.options[selectElement.selectedIndex].text;
+                const numBooksValue = this.myForm.get('numBooks').value;
+                const numPagesValue = this.myForm.get('numPages').value;
+
+                this._WordsService.GetWords(selectTextBook, numBooksValue, numPagesValue).subscribe(( res: any) => {
+                let words = res;
+                sessionStorage.setItem("words", JSON.stringify(words))
+                let data_words = [];
+                    let p = '';
+                    p += '<div class="container-words d-flex" "style="flex-wrap: wrap;">';
+                    
+                    const data = JSON.parse(sessionStorage.getItem("data"));
+                    Object.keys(words).forEach((key, value)=>{ 
+                        data_words =  words[key];
+                        var word_definition_english = words[key].definition_english.replace(/'/g, '"');
+                        var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
+                        // Crear un objeto con los datos que deseas pasar a openModalWord
+                        let wordData = {
+                            name: words[key].name,
+                            definition_english: word_definition_english,
+                            definition_spanish: word_definition_spanish
+                        };
+                        p += `<div class='container-word'>
+                                <span class="close-button" id="boxclose">X</span>
+                                <button class="btn btn-dark word-name" style="margin:25px" data-word='${JSON.stringify(wordData)}'>${words[key].name}</button>
+                            </div> 
+                            `;
+                    })
+
+                    p += '</div>';
+                    this.spinner = false;
+                    this.cdr.detectChanges(); // Detectar los cambios y actualizar la vista
+                    document.getElementsByClassName("content-words")[0].innerHTML = p; 
+                    // Asignar eventos de clic a los botones después de agregarlos al DOM
+                    const buttons = document.querySelectorAll('.word-name');
+                    buttons.forEach(button => {
+                        button.addEventListener('click', this.openModalWord.bind(this));
+                    });
+                }); 
+
+            } else if (result.isDenied) {
+                console.log('cancela');
+            }
+        });
+
+
+
+
+
+
+
+
+
+
     }
 
     getWordsDEMO(): any {
