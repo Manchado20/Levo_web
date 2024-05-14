@@ -262,6 +262,7 @@ export class WordsComponent implements OnInit, OnDestroy
                 const container_words = document.getElementById('container-words-id');
                 container_words.querySelector('.content-words').innerHTML = "";
                 container_words.querySelector('.content-words').innerHTML += `
+                <div class="container-spinner">
                     <div
                         class="spinner-border"
                         style="
@@ -274,6 +275,7 @@ export class WordsComponent implements OnInit, OnDestroy
                     >
                         <span class="visually-hidden">Loading...</span>
                     </div>
+                </div>
                     `;
                 this.spinner = true; 
 
