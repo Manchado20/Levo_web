@@ -85,9 +85,29 @@
                                     border-radius: 5px;
                                 "
                                 (click)="getWords()"
+                                [disabled]="isButtonDisabled"
+                                #processButton
                             >
                                 Procesar
                             </button>
+
+                            <button
+                                #saveButton
+                                type="button"
+                                class="btn btn-dark"
+                                style="
+                                    padding: 10px 25px;
+                                    background: #0f172a;
+                                    color: white;
+                                    border-radius: 5px;
+                                    margin-left: 23px;
+                                    display: none;
+                                "
+                                (click)="saveWords()"
+                            >
+                                Guardar
+                            </button>
+
                         </div>
                     </div>
                 </div>

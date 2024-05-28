@@ -55,6 +55,11 @@ export class WordsComponent implements OnInit, OnDestroy
     user:any = sessionStorage.getItem('user');
     titulo_modal_btn = "Guardar";
     configuracion_words:any = [];
+    isButtonDisabled = false;
+    visibleBTNGuardar = false;
+    @ViewChild('processButton', { static: false }) processButton: ElementRef;
+    @ViewChild('saveButton', { static: false }) saveButton: ElementRef;
+
     /**
      * Constructor
      */
@@ -85,7 +90,6 @@ export class WordsComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
-
         this.dtOptions = {
             responsive: true,
             "scrollX": true,
@@ -240,6 +244,7 @@ export class WordsComponent implements OnInit, OnDestroy
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
     getWords(): any {
+        this.cdr.detectChanges(); // Asegúrate de que el cambio se refleje en la vista
         const swalWithBootstrapButtons = Swal.mixin({
             customClass: {
               confirmButton: "btn btn-dark btn-confirm-process-word",
@@ -258,7 +263,10 @@ export class WordsComponent implements OnInit, OnDestroy
           }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-              
+                this.processButton.nativeElement.disabled = true; // Deshabilitar el botón de procesar
+                this.isButtonDisabled = true; // Deshabilitar el botón de procesar
+                this.saveButton.nativeElement.style.display = 'none'; // Ocultar el botón de guardar
+
                 const container_words = document.getElementById('container-words-id');
                 container_words.querySelector('.content-words').innerHTML = "";
                 container_words.querySelector('.content-words').innerHTML += `
@@ -331,6 +339,11 @@ export class WordsComponent implements OnInit, OnDestroy
                     buttons.forEach(button => {
                         button.addEventListener('click', this.openModalWord.bind(this));
                     });
+
+                  
+                    this.isButtonDisabled = false; // Habilitar el botón de procesar después de la operación
+                    this.saveButton.nativeElement.style.display = 'inline-block'; // Ocultar el botón de guardar
+                    this.cdr.detectChanges(); // Asegúrate de que el cambio se refleje en la vista
                 }); 
 
             } else if (result.isDenied) {
@@ -338,14 +351,9 @@ export class WordsComponent implements OnInit, OnDestroy
             }
         });
 
+    }
 
-
-
-
-
-
-
-
+    saveWords() {
 
     }
 
