@@ -168,14 +168,24 @@ export class FlashCardsComponent implements OnInit, OnDestroy
 
         // Validate given response by user against correct translation.
         let correctResponse = false;
-        if(this.response.toLowerCase().trim() === this.currentItem.translation) {
+        
+        let respuesta = this.response.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        let respuesta_usuario = this.currentItem.translation.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        console.log(respuesta.toLowerCase().trim(), '  this.response.toLowerCase().trim()');
+        console.log(respuesta_usuario.toLowerCase().trim(), '  respuesta_usuario');
+
+        if(this.response.toLowerCase().trim() === this.currentItem.translation.toLowerCase()) {
             this.correctResponses += 1;
             correctResponse = true;
+            console.log('correcto');
+
         }
         if(correctResponse) {
             this.correctSound.play();
+            console.log('correcto 2');
         } else {
             this.incorrectSound.play();
+            console.log('incorrecto');
         }
 
         // Sends user response for saving in database.

@@ -90,6 +90,14 @@ export class WordsService
         return this._httpClient.post(environment.apiURL+'/save-config-words', data);
     }
 
+    saveWords(wordsData: any) { 
+        let data = {
+            "wordsData" : wordsData,
+        };
+        
+        return this._httpClient.post(environment.apiURL+'/save-words', data);
+    }
+
     getConfigWords(user: string): Observable<any>
     {
         let data = {

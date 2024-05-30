@@ -45,6 +45,8 @@ export class WordsComponent implements OnInit, OnDestroy
     };
 
     word: string = "";
+    translated_word: string = "";
+    example_word: string = "";
     descrpcion_english: string = "";
     descrpcion_spanish: string = "";
     spinner: boolean = false;
@@ -315,18 +317,23 @@ export class WordsComponent implements OnInit, OnDestroy
                     const data = JSON.parse(sessionStorage.getItem("data"));
                     Object.keys(words).forEach((key, value)=>{ 
                         data_words =  words[key];
-                        var word_definition_english = words[key].definition_english.replace(/'/g, '"');
-                        var word_definition_spanish = words[key].definition_spanish.replace(/'/g, '"');
+                        var word_definition_english = words[key].definition_english.replace(/^[^:]*:\s*/, '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+                        var word_definition_spanish = words[key].definition_spanish.replace(/^[^:]*:\s*/, '').replace(/'/g, "\\'").replace(/"/g, '\\"');
                         // Crear un objeto con los datos que deseas pasar a openModalWord
                         let wordData = {
                             name: words[key].name,
+                            translated_word: words[key].translated_word,
                             definition_english: word_definition_english,
-                            definition_spanish: word_definition_spanish
+                            definition_spanish: word_definition_spanish,
+                            example_word: words[key].example_word
                         };
+
+                        let wordDataString = JSON.stringify(wordData).replace(/'/g, "&apos;").replace(/"/g, "&quot;");
+
                         p += `<div class='container-word'>
                                 <span class="close-button" id="boxclose">X</span>
-                                <button class="btn btn-dark word-name" style="margin:25px" data-word='${JSON.stringify(wordData)}'>${words[key].name}</button>
-                            </div> 
+                                <button class="btn btn-dark word-name" style="margin:25px" data-word='${wordDataString}'>${words[key].name}</button>
+                                </div> 
                             `;
                     })
 
@@ -354,6 +361,54 @@ export class WordsComponent implements OnInit, OnDestroy
     }
 
     saveWords() {
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+              confirmButton: "btn btn-dark btn-confirm-process-word",
+              cancelButton: "btn btn-secondary"
+            },
+            buttonsStyling: false
+        });
+
+        swalWithBootstrapButtons.fire({
+            title: "¿Está seguro guardar las palabras actuales?",
+            text: "El listado de palabras serán utilizadas para los juegos didácticos del usuario.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Continuar",
+            cancelButtonText: `Cancelar`
+          }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                let words = JSON.parse(sessionStorage.getItem("words"));
+                this._WordsService.saveWords(words).subscribe(( res: any) => {
+                   if(res.status) {
+                        Swal.fire({
+                            title: "¡Éxito!",
+                            text: "El listado de palabras se han guardado correctamente.",
+                            icon: "success"
+                        });
+                        const container_words = document.getElementById('container-words-id');
+                        container_words.querySelector('.content-words').innerHTML = "";
+                   }
+                }); 
+            } else if (result.isDenied) {
+                console.log('cancela');
+            }
+
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 
@@ -394,11 +449,13 @@ export class WordsComponent implements OnInit, OnDestroy
         const wordData = JSON.parse(event.currentTarget.getAttribute('data-word'));
         const modelDiv = document.getElementById('modal-word');
         this.word = wordData.name;
+        this.example_word = wordData.example_word;
+        this.translated_word = wordData.translated_word;
         this.descrpcion_english = wordData.definition_english;
         this.descrpcion_spanish = wordData.definition_spanish;
         if (modelDiv != null) {
             modelDiv.style.display = 'block';
-            modelDiv.querySelector('.modal-title').innerHTML = this.word;
+            modelDiv.querySelector('.modal-title').innerHTML = this.word + ' - ' + this.translated_word;
             modelDiv.querySelector('.container-english').innerHTML += `
                 <p style="font-weight: 700;">En inglés:</p>
                 ${this.descrpcion_english}
@@ -407,6 +464,11 @@ export class WordsComponent implements OnInit, OnDestroy
             modelDiv.querySelector('.container-spanish').innerHTML += `
                 <p style="font-weight: 700;">En Español:</p>
                 ${this.descrpcion_spanish}
+            `;
+
+            modelDiv.querySelector('.container-example').innerHTML += `
+                <p style="font-weight: 700;">Ejemplo:</p>
+                ${this.example_word}
             `;
         }
         console.log(this.word);
@@ -440,6 +502,7 @@ export class WordsComponent implements OnInit, OnDestroy
         if(modelDiv!= null) {
           modelDiv.querySelector('.container-english').textContent = "";
           modelDiv.querySelector('.container-spanish').textContent = "";
+          modelDiv.querySelector('.container-example').textContent = "";
           modelDiv.style.display = 'none';
         } 
       }
