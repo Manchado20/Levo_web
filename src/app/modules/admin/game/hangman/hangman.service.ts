@@ -11,12 +11,16 @@ export class HangmanService {
 
 
   constructor(private http: HttpClient) { }
+  // private words: string[] = [
+  //   'Rails', 'Angular', 'Bootstrap', 'Ruby', 'JavaScript',
+  //   'authentication', 'function', 'array', 'object', 'sublime',
+  //   'github', 'agile', 'route', 'database', 'model', 'view',
+  //   'controller', 'terminal', 'array', 'data', 'inheritance',
+  //   'Heroku', 'scope', 'closure'
+  // ];
+
   private words: string[] = [
-    'Rails', 'Angular', 'Bootstrap', 'Ruby', 'JavaScript',
-    'authentication', 'function', 'array', 'object', 'sublime',
-    'github', 'agile', 'route', 'database', 'model', 'view',
-    'controller', 'terminal', 'array', 'data', 'inheritance',
-    'Heroku', 'scope', 'closure'
+   'array', 'data', 'Angular'
   ];
 
   startGame(): Observable<any> {

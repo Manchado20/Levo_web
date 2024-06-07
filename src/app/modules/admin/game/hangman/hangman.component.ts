@@ -5,6 +5,9 @@ import { ThemePalette } from '@angular/material/core';
 import { interval, Subscription, Subject } from 'rxjs';
 import { TimerSound } from '../../../../lib/sound/timersound';
 import { FlipSound } from 'app/lib/sound/flipsound';
+import { Round, RoundItem } from '../game.types';
+import { CorrectSound } from 'app/lib/sound/correctsound';
+import { IncorrectSound } from 'app/lib/sound/incorrectsound';
 
 @Component({
   selector: 'app-hangman',
@@ -25,6 +28,14 @@ export class HangmanComponent implements OnInit, OnDestroy {
   progressBarColor: ThemePalette = "primary";             // Top progress bar color, for indicating a warning on little remaining time.
   timerSound: TimerSound;
   flipSound: FlipSound;
+  currentItemNumber: number;                              // Index of the current round item.
+  currentItem: RoundItem = {};         
+  correctResponses: number = 0;                           // Number of correct responses.
+  round: Round;                                           // Round game.
+  correctSound: CorrectSound;
+  incorrectSound: IncorrectSound
+  responded: boolean;                                     // Flag for indicating if user has responded a flashcard.
+
   private timerSubscription: Subscription;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   private isComponentActive: boolean = true;
@@ -34,6 +45,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.timerSound = new TimerSound();
     this.flipSound = new FlipSound();
+    this.correctSound = new CorrectSound();
+    this.incorrectSound = new IncorrectSound();
     this.startGame();
     this.letters = this.hangmanService.makeLetters("abcdefghijklmnopqrstuvwxyz");
   }
@@ -77,7 +90,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
   reset(): void {
     console.log('reset');
-
+    this.responded = false;
     this.secretWord = this.hangmanService.makeLetters(this.hangmanService.getRandomWord());
     console.log(this.secretWord, ' this.secretWord');
     this.numMisses = 0;
@@ -102,10 +115,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         }
       }
 
-      if (this.progressBarValue == 0) {
-        console.log('destruto');
-      }
-      if (sec === seconds) {
+      if (sec === seconds || this.responded === true) {
         this.timerSubscription.unsubscribe();
         this.progressBarValue = 100;
         this.progressBarColor = "primary";
@@ -114,6 +124,22 @@ export class HangmanComponent implements OnInit, OnDestroy {
       }
       console.log('termino 0');
       this.cdr.markForCheck();
+
+      if (this.win) {
+        if (!this.responded) {
+          this.progressBarValue = 100;
+          this.progressBarColor = "primary";
+          this.responded = true;
+          this.timerSound.pause();
+          this.correctSound.play();
+          this.correctResponses += 1;
+        }
+        this.timerSubscription.unsubscribe();
+        setTimeout(() => {
+          this.reset();
+        }, 3000);
+      }
+
     });
     this.cdr.detectChanges(); // Force change detection
   }
@@ -135,10 +161,39 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
   private checkForEndOfGame(): void {
     this.win = this.secretWord.every(letter => letter.chosen);
+    console.log(this.win,  ' this.win');
+    // Validate given response by user against correct translation.
+    let correctResponse = false;
     if (!this.win && this.numMisses === this.missesAllowed) {
       this.lost = true;
       this.revealSecret();
-    }
+    }  
+    
+    // if(this.win) {
+    //   this.progressBarValue = 100;
+    //   this.progressBarColor = "primary";
+    //   if(this.responded === false) {
+    //     this.responded = true;
+    //   }
+    //   this.timerSound.pause();
+    //   this.correctSound.play();
+    //   this.correctResponses += 1;
+    //   correctResponse = true;
+    // }
+
+    // console.log(this.correctResponses);
+
+    // // Sends user response for saving in database.
+    // let userResponse = {
+    //     round: this.round._id,
+    //     correct: correctResponse,
+    //     time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+    //     word: this.currentItem.word,
+    //     type: this.currentItem.type,
+    //     translation: this.currentItem.translation
+    // };
+
+    // console.log(userResponse, ' userResponse');
   }
 
   private revealSecret(): void {
