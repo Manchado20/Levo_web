@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiURL: 'http://levoapp.xyz:3000'
+    apiURL: 'https://levoapi.manchados.site'
 };

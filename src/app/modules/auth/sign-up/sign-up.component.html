@@ -1,4 +1,4 @@
-<div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
+<div [ngClass]="{'hidden': !showContainer}" class="container-sign-up flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
     <div class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
             <!-- Logo -->
@@ -57,6 +57,9 @@
                     <mat-error *ngIf="signUpForm.get('email').hasError('email')">
                         Please enter a valid email address
                     </mat-error>
+                    <mat-error *ngIf="signUpForm.get('email').hasError('emailExists')">
+                        This email address already exists
+                      </mat-error>
                 </mat-form-field>
 
                 <!-- Password field -->

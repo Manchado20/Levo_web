@@ -76,6 +76,20 @@ export class GameService
         );
     }
 
+     // Fetch a round from API.
+     getRoundHangMan(): Observable<Round>
+     {
+         const payload = AuthUtils.getAccessTokenPayload(localStorage.accessToken);
+         return this._httpClient.post<Round>(environment.apiURL+'/start_hangman', {
+             area: payload.area,
+             user: payload.user
+         }).pipe(
+             tap((response: any) => {
+                 this._round.next(response);
+             })
+         );
+     }
+
 
     /**
      * Get categories

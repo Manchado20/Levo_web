@@ -2,7 +2,9 @@ import { Route } from '@angular/router';
 import { GameComponent } from './game.component';
 import { GameListComponent } from './list/list.component';
 import { FlashCardsComponent } from './flashcards/flashcards.component';
-import { GameCategoriesResolver, GamesResolver, GameResolver, RoundResolver } from './game.resolvers';
+import { HangmanComponent } from './hangman/hangman.component';
+
+import { GameCategoriesResolver, GamesResolver, GameResolver, RoundResolver, RoundHangMan } from './game.resolvers';
 
 export const gameRoutes: Route[] = [
     {
@@ -27,6 +29,14 @@ export const gameRoutes: Route[] = [
                 resolve  : {
                     round: RoundResolver
                 }
+            },
+            {
+                path     : 'hangman',
+                component: HangmanComponent,
+                runGuardsAndResolvers: 'always',
+                // resolve  : {
+                //     round: RoundHangMan
+                // }
             }
         ]
     }

@@ -136,3 +136,17 @@ export class RoundResolver implements Resolve<any>
         return this._gameService.getRound();
     }
 }
+
+@Injectable({
+    providedIn: 'root'
+})
+export class RoundHangMan implements Resolve<any>
+{
+    constructor(private _gameService: GameService) {}
+
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Round> {
+        return this._gameService.getRoundHangMan();
+    }
+}
+
+

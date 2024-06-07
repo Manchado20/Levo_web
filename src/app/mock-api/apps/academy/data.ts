@@ -47,7 +47,7 @@ export const courses = [
         description: 'Identifica letra por letra cada palabra antes de ser colgado',
         category   : 'isc',
         timeLimit  : true,
-        available  : false,
+        available  : true,
         wordsRound : 3,
         gameModes  : 'Adivinar',
         totalSteps : 11,

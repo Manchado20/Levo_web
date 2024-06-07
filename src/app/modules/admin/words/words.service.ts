@@ -73,8 +73,7 @@ export class WordsService
         headers=headers.append('Access-Control-Allow-Origin', '*')
         headers=headers.append('content-type','application/x-www-form-urlencoded')
         headers=headers.append('customer-header', 'custom')
-
-        const url = `http://localhost:8000/extracted-words?category=${selectTextBook}&url_category=${url_category}&num_book=${numBooksValue}&num_page=${numPagesValue}`;
+        const url = `https://levoalgoritmo.manchados.site/extracted-words?category=${selectTextBook}&url_category=${url_category}&num_book=${numBooksValue}&num_page=${numPagesValue}`;
         return this._httpClient.get(url, { headers: headers });   
      }
 

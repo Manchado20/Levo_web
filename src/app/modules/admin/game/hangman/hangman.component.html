@@ -1,0 +1,47 @@
+<div class="flex flex-col flex-auto min-w-0">
+
+  <!-- Round -->
+  <div *ngIf="roundStatus == 'playing'" class="flex-auto p-8">
+      <div class="flex justify-between">
+          <div>
+              <button mat-flat-button color="warn" (click)="stopRound()" [disabled]="responded">Terminar</button>
+          </div>
+          <div>
+            <button mat-flat-button color="primary" (click)="respondCard(true)" [disabled]="responded">Siguiente</button>
+        </div>
+      </div>
+
+
+      <div class="container-fluid">
+        <div class="well">
+          <div class="secretWord">
+            <div class="card">
+              <ul class="list-inline">
+                <li *ngFor="let letter of secretWord">
+                  <span *ngIf="!letter.chosen">_</span>
+                  <span *ngIf="letter.chosen">{{ letter.name }}</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="letters">
+              <ul class="list-inline">
+                <li *ngFor="let letter of letters">
+                  <button class="btn btn-dark letter-button"
+                          [disabled]="letter.chosen"
+                          (click)="try(letter)">{{letter.name}}</button>
+                </li>
+              </ul>
+            </div>
+            
+            <p>
+              <span *ngIf="!win && !lost">You have {{ missesAllowed - numMisses }} guesses remaining.</span>
+              <span *ngIf="win">Well done!</span>
+              <span *ngIf="lost">Sorry, please try again!</span>
+            </p>
+          </div>
+        </div>
+
+        <button (click)="reset()" class="btn btn-primary btn-large">New Game</button>
+      </div>
+  </div>
