@@ -167,6 +167,13 @@ export class HangmanComponent implements OnInit, OnDestroy {
     if (!this.win && this.numMisses === this.missesAllowed) {
       this.lost = true;
       this.revealSecret();
+      this.incorrectSound.play();
+      this.timerSubscription.unsubscribe();
+      this.progressBarValue = 100;
+      this.progressBarColor = "primary";
+      setTimeout(() => {
+        this.reset();
+      }, 2000);
     }  
     
     // if(this.win) {
