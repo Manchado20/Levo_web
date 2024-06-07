@@ -10,6 +10,9 @@
             <button mat-flat-button color="primary" (click)="respondCard(true)" [disabled]="responded">Siguiente</button>
         </div>
       </div>
+      <div class="pt-8">
+        <mat-progress-bar #progressBar mode="determinate" [color]="progressBarColor" [value]="progressBarValue"></mat-progress-bar>
+      </div>
 
 
       <div class="container-fluid">
@@ -42,6 +45,6 @@
           </div>
         </div>
 
-        <button (click)="reset()" class="btn btn-primary btn-large">New Game</button>
+        <button (click)="reset()" class="btn btn-primary btn-large d-none">New Game</button>
       </div>
   </div>
