@@ -75,6 +75,10 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
   respondCard(skip: boolean): void {
     this.revealSecret();
+    this.timerSubscription.unsubscribe();
+    this.progressBarValue = 100;
+    this.progressBarColor = "primary";
+    this.timerSound.pause();
     setTimeout(() => {
       this.reset();
       console.log('ok');

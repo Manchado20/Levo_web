@@ -2,13 +2,13 @@
     <div class="w-full sm:w-auto py-8 px-4 sm:p-12 sm:rounded-2xl sm:shadow sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
             <!-- Logo -->
-            <div class="w-12 mx-auto">
-                <img src="assets/images/logo/levo.png">
+            <div class="w-12 mx-auto" style="text-align: center; display: flex; justify-content: center;">
+                <img src="assets/images/logo/levo.png" class="img-levo" style="width: 170px; max-width:300px;">
             </div>
 
             <!-- Title -->
-            <div *ngIf="countdown > 0" class="mt-8 text-4xl font-extrabold tracking-tight leading-tight text-center">Has cerrado sesión</div>
-            <div *ngIf="countdown == 0" class="mt-8 text-4xl font-extrabold tracking-tight leading-tight text-center">Sesión finalizada</div>
+            <div *ngIf="countdown > 0" class="mt-3 text-4xl font-extrabold tracking-tight leading-tight text-center">Has cerrado sesión</div>
+            <div *ngIf="countdown == 0" class="mt-3 text-4xl font-extrabold tracking-tight leading-tight text-center">Sesión finalizada</div>
             <div class="flex justify-center mt-0.5 font-medium">
                 <!-- Redirect countdown -->
                 <ng-container *ngIf="countdown > 0">
