@@ -197,6 +197,8 @@ export class FlashCardsComponent implements OnInit, OnDestroy
             type: this.currentItem.type,
             translation: this.currentItem.translation
         };
+
+        console.log(userResponse, ' userResponse');
         this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
             .then((response: any) => {
                 /* console.log(response); */

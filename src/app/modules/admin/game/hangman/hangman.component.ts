@@ -8,6 +8,7 @@ import { FlipSound } from 'app/lib/sound/flipsound';
 import { Round, RoundItem } from '../game.types';
 import { CorrectSound } from 'app/lib/sound/correctsound';
 import { IncorrectSound } from 'app/lib/sound/incorrectsound';
+import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-hangman',
@@ -35,6 +36,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
   correctSound: CorrectSound;
   incorrectSound: IncorrectSound
   responded: boolean;                                     // Flag for indicating if user has responded a flashcard.
+  responseTimes: number[] = [];                           // Array of all response times of every card.
+  averageResponseTime: string = '0';                      // Average response time in whole round.
 
   private timerSubscription: Subscription;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
@@ -67,10 +70,17 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   startGame(): void {
-    this.hangmanService.playHangman({ action: 'start' }).subscribe(response => {
+    this.hangmanService.startGame().subscribe(response => {
       this.hiddenWord = response.items[0].word;
     });
     this.reset();
+    this.hangmanService.round$
+        .pipe(takeUntil(this._unsubscribeAll))
+        .subscribe((round: Round) => {
+          console.log(round, ' round');
+            this.round = round;
+            this.currentItemNumber = 0;
+        });
   }
 
   respondCard(skip: boolean): void {
@@ -137,16 +147,68 @@ export class HangmanComponent implements OnInit, OnDestroy {
           this.timerSound.pause();
           this.correctSound.play();
           this.correctResponses += 1;
+
+          let userResponse = {
+              round: this.round._id,
+              correct: 1,
+              time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+              word: this.currentItem.word,
+              type: 'Sustantivo',
+              translation: this.currentItem.translation
+          };
+
+          console.log(userResponse, ' userResponse');
         }
         this.timerSubscription.unsubscribe();
         setTimeout(() => {
           this.reset();
+          this.nextWord(this.round.items[this.currentItemNumber]);
         }, 3000);
       }
 
     });
     this.cdr.detectChanges(); // Force change detection
   }
+
+   /**
+     * Take a new word for showing a flashcard.
+     * @param item
+     */
+   nextWord(item: RoundItem)
+   {
+       this.currentItem = item;
+       this.responded = false;
+       this.progressBarColor = "primary";
+       const timer = interval(10);
+       const seconds = this.progressBarTime * 100;
+       const sub = timer.subscribe((sec) => {
+           this.progressBarValue = 100 - sec * 100 / seconds;
+           if(this.progressBarValue <= 30) {
+               this.progressBarColor = "warn";
+               if(this.progressBarValue == 25) {
+                   this.timerSound.play();
+               }
+           }
+           // If there is no more time or user responded.
+           if (sec === seconds || this.responded === true) {
+               sub.unsubscribe();
+               // If still there are more cards, average response time is calculated.
+               if(this.currentItemNumber < 4) {
+                   this.currentItemNumber++;
+                   this.responseTimes.push(sec/100);
+                   this.averageResponseTime = (this.responseTimes.reduce((a, b) => a + b) / this.responseTimes.length).toFixed(2);
+               }
+               // Reset progress bar to initial state.
+               this.progressBarValue = 100;
+               this.progressBarColor = "primary";
+               // If user did not respond in time, app automatically force response with whatever the user left in textbox.
+               if(this.responded === false) {
+                   this.responded = true;
+               }
+           }
+           this.cdr.markForCheck();
+       });
+   }
 
   try(guess: { name: string, chosen: boolean }): void {
     guess.chosen = true;
