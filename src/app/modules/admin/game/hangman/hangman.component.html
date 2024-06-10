@@ -18,7 +18,7 @@
       <div class="container-fluid">
         <div class="well">
           <div class="secretWord">
-            <div class="card">
+            <div class="card mb-3">
               <div class="flex justify-end">
                 <div *ngIf="this.win" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-green-500 bg-green-100 dark:text-green-50 dark:bg-green-500">
                     <mat-icon class="text-current" [svgIcon]="'heroicons_solid:badge-check'"></mat-icon>
@@ -26,13 +26,19 @@
                 <div *ngIf="!this.win && this.lost" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-red-600 bg-red-100 dark:text-red-50 dark:bg-red-600">
                     <mat-icon class="text-current" [svgIcon]="'heroicons_solid:exclamation'"></mat-icon>
                 </div>
-            </div>
+              </div>
               <ul class="list-inline">
                 <li *ngFor="let letter of secretWord">
                   <span *ngIf="!letter.chosen">_</span>
                   <span *ngIf="letter.chosen">{{ letter.name }}</span>
                 </li>
               </ul>
+            </div>
+
+            <div class="card">
+              <div class="container-example text-center">
+                <p>{{ example_word }}</p>
+              </div>
             </div>
             
             <div class="letters">

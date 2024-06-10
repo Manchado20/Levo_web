@@ -9,6 +9,8 @@ import { Round, RoundItem } from '../game.types';
 import { CorrectSound } from 'app/lib/sound/correctsound';
 import { IncorrectSound } from 'app/lib/sound/incorrectsound';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-hangman',
@@ -38,12 +40,17 @@ export class HangmanComponent implements OnInit, OnDestroy {
   responded: boolean;                                     // Flag for indicating if user has responded a flashcard.
   responseTimes: number[] = [];                           // Array of all response times of every card.
   averageResponseTime: string = '0';                      // Average response time in whole round.
+  response: string = '';                                  // Response given by user.
+  word: any;
+  example_word: string = "";
 
+  data_word:any = [];
   private timerSubscription: Subscription;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   private isComponentActive: boolean = true;
 
-  constructor(private hangmanService: HangmanService, private _router: Router, private cdr: ChangeDetectorRef) { }
+  constructor(private hangmanService: HangmanService, private _router: Router, private cdr: ChangeDetectorRef,         private _httpClient: HttpClient,
+  ) { }
 
   ngOnInit(): void {
     this.timerSound = new TimerSound();
@@ -70,17 +77,22 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   startGame(): void {
-    this.hangmanService.startGame().subscribe(response => {
-      this.hiddenWord = response.items[0].word;
+    this.hangmanService.startGame().subscribe((round: Round) => {
+      // this.hiddenWord = response.items[0].word;
+      this.round = round;
+      this.currentItemNumber = 0;
+      this.data_word = this.round.items;
+      this.reset(this.currentItemNumber, this.data_word);
+      // this.nextWord(this.round.items[this.currentItemNumber]);
     });
-    this.reset();
-    this.hangmanService.round$
-        .pipe(takeUntil(this._unsubscribeAll))
-        .subscribe((round: Round) => {
-          console.log(round, ' round');
-            this.round = round;
-            this.currentItemNumber = 0;
-        });
+    // this.hangmanService.round$
+    //     .pipe(takeUntil(this._unsubscribeAll))
+    //     .subscribe((round: Round) => {
+    //       this.round = round;
+    //       this.currentItemNumber = 0;
+    //       console.log(this.round);
+    //       // this.nextWord(this.round.items[this.currentItemNumber]);
+    //     });
   }
 
   respondCard(skip: boolean): void {
@@ -89,10 +101,38 @@ export class HangmanComponent implements OnInit, OnDestroy {
     this.progressBarValue = 100;
     this.progressBarColor = "primary";
     this.timerSound.pause();
+
+    // Sends user response for saving in database.
+    let userResponse = {
+      round: this.round._id,
+      correct: 1,
+      time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+      word: this.currentItem.word,
+      type: this.currentItem.type,
+      translation: this.currentItem.translation
+    };
+
+  console.log(userResponse, ' userResponse');
+  this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
+      .then((response: any) => {
+          /* console.log(response); */
+      }).catch((error: any) => {
+          console.log(error);
+      })
     setTimeout(() => {
-      this.reset();
-      console.log('ok');
-    }, 2000);
+      if(this.currentItemNumber === 10) {
+          this.stopRound();
+          return;
+      }
+      this.currentItem.translation = "";
+      this.cdr.markForCheck();
+      this.response = "";
+      this.flipSound.play();
+      setTimeout(() => {
+        console.log(this.data_word, ' this.data_word RESET');
+          this.reset(1, this.data_word);
+      }, 200);
+  }, 3000);
   }
 
   stopRound(): void {
@@ -102,11 +142,24 @@ export class HangmanComponent implements OnInit, OnDestroy {
     this._router.navigateByUrl('/practicar');
   }
 
-  reset(): void {
-    console.log('reset');
+  getRandomWord(words) {
+    console.log(words, '  wordsssssss');
+    if (words.length === 0) {
+        return null; // No hay más palabras disponibles
+    }
+    const randomIndex = Math.floor(Math.random() * words.length);
+    const selectedWord = words[randomIndex];
+    words.splice(randomIndex, 1); // Elimina la palabra seleccionada del array
+    return selectedWord;
+  }
+
+  reset(itemNumber?, data?): void {
     this.responded = false;
-    this.secretWord = this.hangmanService.makeLetters(this.hangmanService.getRandomWord());
-    console.log(this.secretWord, ' this.secretWord');
+    this.word = this.getRandomWord(data);
+    console.log(this.word);
+    // this.secretWord = this.hangmanService.makeLetters(this.hangmanService.getRandomWord());
+    this.secretWord = this.word.word.split('').map(letter => ({ name: letter, chosen: false }));
+    this.example_word = this.word.example;
     this.numMisses = 0;
     this.win = false;
     this.lost = false;
@@ -136,7 +189,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
         this.timerSound.pause();
         this.respondCard(true);
       }
-      console.log('termino 0');
       this.cdr.markForCheck();
 
       if (this.win) {
@@ -162,7 +214,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         this.timerSubscription.unsubscribe();
         setTimeout(() => {
           this.reset();
-          this.nextWord(this.round.items[this.currentItemNumber]);
+          // this.nextWord(this.round.items[this.currentItemNumber]);
         }, 3000);
       }
 
@@ -227,7 +279,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
   private checkForEndOfGame(): void {
     this.win = this.secretWord.every(letter => letter.chosen);
-    console.log(this.win,  ' this.win');
     // Validate given response by user against correct translation.
     let correctResponse = false;
     if (!this.win && this.numMisses === this.missesAllowed) {
