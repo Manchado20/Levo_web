@@ -396,12 +396,14 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
    resetData()
    {
-       this.roundStatus = 'playing';
-       this.correctResponses = 0;
-       this.responseTimes = [];
-       this.round = {};
-       this.response = '';
-       this.cdr.markForCheck();
+      this.roundStatus = 'playing';
+      this.correctResponses = 0;
+      this.responseTimes = [];
+      this.round = {};
+      this.response = '';
+      this.cdr.markForCheck();
+      this.loser = false;
+      this.incorrect_manual = false;
    }
 
 }
