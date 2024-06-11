@@ -106,8 +106,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
     }
     this.revealSecret();
     this.timerSubscription.unsubscribe();
-    this.progressBarValue = 100;
-    this.progressBarColor = "primary";
+    // this.progressBarValue = 100;
+    // this.progressBarColor = "primary";
     this.timerSound.pause();
 
     setTimeout(() => {
@@ -207,6 +207,13 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
       if (sec === seconds || this.responded === true) {
         this.timerSubscription.unsubscribe();
+        // If still there are more cards, average response time is calculated.
+        if(this.currentItemNumber < 3) {
+            this.currentItemNumber++;
+            this.responseTimes.push(sec/100);
+            this.averageResponseTime = (this.responseTimes.reduce((a, b) => a + b) / this.responseTimes.length).toFixed(2);
+        }
+        // Reset progress bar to initial state.
         this.progressBarValue = 100;
         this.progressBarColor = "primary";
         this.timerSound.pause();
@@ -216,8 +223,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
       if (this.win) {
         if (!this.responded) {
-          this.progressBarValue = 100;
-          this.progressBarColor = "primary";
+          // this.progressBarValue = 100;
+          // this.progressBarColor = "primary";
           this.responded = true;
           this.timerSound.pause();
           this.correctSound.play();
