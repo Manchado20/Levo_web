@@ -112,7 +112,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
     setTimeout(() => {
       if(this.currentItemNumber === 3) {
-          console.log('terminoi juego ahi');
           this.roundStatus = 'end';
           this.stopRound();
           return;
@@ -129,7 +128,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
         word: this.word.word,
         type: 'Sustantivo',
-        translation: this.currentItem.translation
+        translation: this.word.translation
       };
 
       console.log(userResponse, ' userResponse');
@@ -166,7 +165,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   getRandomWord(words) {
-    console.log(words, '  wordsssssss');
     if (words.length === 0) {
         return null; // No hay más palabras disponibles
     }
@@ -235,7 +233,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
           time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
           word: this.word.word,
           type: 'Sustantivo',
-          translation: this.currentItem.translation
+          translation: this.word.translation
         };
 
         console.log(userResponse, ' userResponse');
