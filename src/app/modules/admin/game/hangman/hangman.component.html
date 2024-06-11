@@ -27,7 +27,7 @@
                     <mat-icon class="text-current" [svgIcon]="'heroicons_solid:exclamation'"></mat-icon>
                 </div>
               </div>
-              <ul class="list-inline">
+              <ul class="list-inline text-center">
                 <li *ngFor="let letter of secretWord">
                   <span *ngIf="!letter.chosen">_</span>
                   <span *ngIf="letter.chosen">{{ letter.name }}</span>
@@ -42,7 +42,7 @@
             </div>
             
             <div class="letters">
-              <ul class="list-inline">
+              <ul class="list-inline text-center">
                 <li *ngFor="let letter of letters">
                   <button class="btn btn-dark letter-button"
                           [disabled]="letter.chosen"
@@ -51,7 +51,7 @@
               </ul>
             </div>
             
-            <p>
+            <p class="text-center">
               <span *ngIf="!win && !lost">You have {{ missesAllowed - numMisses }} guesses remaining.</span>
               <span *ngIf="win">Well done!</span>
               <span *ngIf="lost">Sorry, please try again!</span>
@@ -61,4 +61,64 @@
 
         <button (click)="reset()" class="btn btn-primary btn-large d-none">New Game</button>
       </div>
+
+      
   </div>
+
+  <!-- Results -->
+  <div *ngIf="roundStatus == 'end'" class="m-4 p-10 shadow rounded-2xl bg-card">
+      <div class="flex items-center pb-2">
+          <div class="flex flex-col">
+              <div class="mr-4 text-4xl md:text-4xl tracking-tight leading-6 font-semibold">Resultados</div>
+          </div>
+      </div>
+      <div class="my-8 space-y-8">
+          <div class="flex flex-col">
+              <div class="flex items-center">
+                  <div class="flex items-center justify-center w-14 h-14 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-600 dark:text-indigo-50">
+                      <mat-icon class="text-current" [svgIcon]="'heroicons_outline:check-circle'"></mat-icon>
+                  </div>
+                  <div class="flex-auto ml-4 leading-none">
+                      <div class="text-sm font-medium text-secondary">Correctas</div>
+                      <div class="mt-2 font-medium text-2xl">{{correctResponses}} palabras ({{(correctResponses/3)*100  | number:'1.0-0' }}%)</div>
+                      <mat-progress-bar class="mt-3 rounded-full" [mode]="'determinate'" [value]="(correctResponses/3)*100"></mat-progress-bar>
+                  </div>
+              </div>
+          </div>
+          <div class="flex flex-col">
+              <div class="flex items-center">
+                  <div class="flex items-center justify-center w-14 h-14 rounded bg-red-100 text-red-800 dark:bg-red-600 dark:text-red-50">
+                      <mat-icon class="text-current" [svgIcon]="'heroicons_outline:exclamation'"></mat-icon>
+                  </div>
+                  <div class="flex-auto ml-4 leading-none">
+                      <div class="text-sm font-medium text-secondary">Incorrectas</div>
+                      <div class="mt-2 font-medium text-2xl">{{3-correctResponses}} palabras ({{((3-correctResponses)/3)*100  | number:'1.0-0' }}%)</div>
+                      <mat-progress-bar class="mt-3 rounded-full" [color]="'warn'" [mode]="'determinate'" [value]="((3-correctResponses)/3)*100"></mat-progress-bar>
+                  </div>
+              </div>
+          </div>
+          <div class="flex flex-col">
+              <div class="flex items-center">
+                  <div class="flex items-center justify-center w-14 h-14 rounded bg-teal-100 text-teal-800 dark:bg-teal-600 dark:text-teal-50">
+                      <mat-icon class="text-current" [svgIcon]="'heroicons_outline:light-bulb'"></mat-icon>
+                  </div>
+                  <div class="flex-auto ml-4 leading-none">
+                      <div class="text-sm font-medium text-secondary">Tiempo promedio de respuesta</div>
+                      <div class="mt-2 font-medium text-2xl">{{averageResponseTime}} segundos</div>
+                      <mat-progress-bar class="mt-3 rounded-full" [color]="'accent'" [mode]="'determinate'" [value]="(averageResponseTime/progressBarTime)*100"></mat-progress-bar>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="grid grid-cols-2 gap-5 py-6">
+          <button (click)="restartRound()" class="fuse-mat-button-rounded col-span-2 sm:col-span-1" mat-flat-button [color]="'primary'">
+              <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:play'"></mat-icon>
+              <span class="ml-2">Practicar de nuevo</span>
+          </button>
+          <button [routerLink]="'/practicar'" class="fuse-mat-button-rounded col-span-2 sm:col-span-1" mat-flat-button [color]="'warn'">
+              <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:reply'"></mat-icon>
+              <span class="ml-2">Ir a selección</span>
+          </button>
+      </div>
+  </div>
+</div>

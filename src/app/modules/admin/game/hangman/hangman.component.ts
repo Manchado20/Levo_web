@@ -44,6 +44,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
   word: any;
   example_word: string = "";
   loser: boolean = false
+  correctResponse: number = 0;                           // Number of correct responses.
 
   data_word:any = [];
   private timerSubscription: Subscription;
@@ -98,8 +99,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
 
   respondCard(skip: boolean): void {
     let correctResponse = false;
-
-    if(!correctResponse) {
+    this.currentItemNumber++;
+    if(!this.correctResponse) {
       this.incorrectSound.play();
       this.loser = true;
     }
@@ -109,44 +110,59 @@ export class HangmanComponent implements OnInit, OnDestroy {
     this.progressBarColor = "primary";
     this.timerSound.pause();
 
-
-    // Sends user response for saving in database.
-    let userResponse = {
-      round: this.round._id,
-      correct: 1,
-      time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
-      word: this.currentItem.word,
-      type: this.currentItem.type,
-      translation: this.currentItem.translation
-    };
-
-  console.log(userResponse, ' userResponse');
-  this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
-      .then((response: any) => {
-          /* console.log(response); */
-      }).catch((error: any) => {
-          console.log(error);
-      })
     setTimeout(() => {
-      if(this.currentItemNumber === 10) {
+      if(this.currentItemNumber === 3) {
+          console.log('terminoi juego ahi');
+          this.roundStatus = 'end';
           this.stopRound();
           return;
       }
       this.currentItem.translation = "";
       this.cdr.markForCheck();
       this.response = "";
+
+        
+      // Sends user response for saving in database.
+      let userResponse = {
+        round: this.round._id,
+        correct: this.correctResponse,
+        time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+        word: this.word.word,
+        type: 'Sustantivo',
+        translation: this.currentItem.translation
+      };
+
+      console.log(userResponse, ' userResponse');
+      this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
+        .then((response: any) => {
+            /* console.log(response); */
+        }).catch((error: any) => {
+            console.log(error);
+        })
+
+
       setTimeout(() => {
-        this.reset(1, this.data_word);
+        this.reset(this.currentItemNumber, this.data_word);
         this.loser = false;
       }, 200);
   }, 3000);
   }
 
   stopRound(): void {
-    if (this.timerSound) {
-      this.timerSound.pause();
-    }
-    this._router.navigateByUrl('/practicar');
+    this.timerSubscription.unsubscribe();
+    this.timerSound.pause();
+    this.roundStatus = 'end';
+    // this.responded = true;
+    this.currentItemNumber = 3;
+    this.cdr.detectChanges();
+    setTimeout(() => {
+      this.cdr.markForCheck();
+    }, 100);
+  
+    // if (this.timerSound) {
+    //   this.timerSound.pause();
+    // }
+    // this._router.navigateByUrl('/practicar');
   }
 
   getRandomWord(words) {
@@ -163,7 +179,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
   reset(itemNumber?, data?): void {
     this.responded = false;
     this.word = this.getRandomWord(data);
-    console.log(this.word);
+    this.correctResponse = 0;
     // this.secretWord = this.hangmanService.makeLetters(this.hangmanService.getRandomWord());
     this.secretWord = this.word.word.split('').map(letter => ({ name: letter, chosen: false }));
     this.example_word = this.word.example;
@@ -171,6 +187,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
     this.win = false;
     this.lost = false;
     this.letters.forEach(letter => letter.chosen = false);
+
+    let correctResponse = false;
 
     this.progressBarColor = "primary";
     const timer = interval(10);
@@ -206,27 +224,36 @@ export class HangmanComponent implements OnInit, OnDestroy {
           this.timerSound.pause();
           this.correctSound.play();
           this.correctResponses += 1;
-
-          let userResponse = {
-              round: this.round._id,
-              correct: 1,
-              time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
-              word: this.currentItem.word,
-              type: 'Sustantivo',
-              translation: this.currentItem.translation
-          };
-
-          console.log(userResponse, ' userResponse');
+          this.correctResponse = 1;
         }
         this.timerSubscription.unsubscribe();
-        setTimeout(() => {
-          this.reset();
-          // this.nextWord(this.round.items[this.currentItemNumber]);
-        }, 3000);
-      }
 
+         // Sends user response for saving in database.
+        let userResponse = {
+          round: this.round._id,
+          correct: this.correctResponse,
+          time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+          word: this.word.word,
+          type: 'Sustantivo',
+          translation: this.currentItem.translation
+        };
+
+        console.log(userResponse, ' userResponse');
+        this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
+          .then((response: any) => {
+              /* console.log(response); */
+          }).catch((error: any) => {
+              console.log(error);
+          })
+          setTimeout(() => {
+            this.reset(itemNumber, this.data_word);
+            // this.nextWord(this.round.items[this.currentItemNumber]);
+          }, 3000);
+        }
+      
     });
     this.cdr.detectChanges(); // Force change detection
+
   }
 
    /**
@@ -287,7 +314,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
   private checkForEndOfGame(): void {
     this.win = this.secretWord.every(letter => letter.chosen);
     // Validate given response by user against correct translation.
-    let correctResponse = false;
     if (!this.win && this.numMisses === this.missesAllowed) {
       this.lost = true;
       this.revealSecret();
@@ -295,6 +321,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
       this.timerSubscription.unsubscribe();
       this.progressBarValue = 100;
       this.progressBarColor = "primary";
+      // this.correctResponse = 0;
+         
       setTimeout(() => {
         this.loser = false;
         this.reset(1, this.data_word);      
@@ -331,4 +359,27 @@ export class HangmanComponent implements OnInit, OnDestroy {
   private revealSecret(): void {
     this.secretWord.forEach(letter => letter.chosen = true);
   }
+
+   /**
+     * Start a new round without leaving round game view.
+     */
+   restartRound()
+   {
+     this.resetData()
+     setTimeout(() => {
+      this._router.navigate([this._router.url]);
+      this.startGame();
+    }, 800);
+   }
+
+   resetData()
+   {
+       this.roundStatus = 'playing';
+       this.correctResponses = 0;
+       this.responseTimes = [];
+       this.round = {};
+       this.response = '';
+       this.cdr.markForCheck();
+   }
+
 }
