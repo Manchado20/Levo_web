@@ -45,8 +45,9 @@ export class HangmanComponent implements OnInit, OnDestroy {
   example_word: string = "";
   loser: boolean = false
   correctResponse: number = 0;                           // Number of correct responses.
-
-  data_word:any = [];
+  not_responded: boolean = false;
+  incorrect_manual: boolean = false;
+  data_word:any = []; 
   private timerSubscription: Subscription;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   private isComponentActive: boolean = true;
@@ -98,10 +99,14 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   respondCard(skip: boolean): void {
+    console.log(this.not_responded, ' not_responded');
+    console.log(this.currentItemNumber, ' this.currentItemNumber');
     let correctResponse = false;
     this.currentItemNumber++;
     if(!this.correctResponse) {
-      this.incorrectSound.play();
+      if(!this.incorrect_manual) {
+        this.incorrectSound.play();
+      }
       this.loser = true;
     }
     this.revealSecret();
@@ -111,7 +116,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
     this.timerSound.pause();
 
     setTimeout(() => {
-      if(this.currentItemNumber === 3) {
+      if(this.currentItemNumber === 3 || this.currentItemNumber > 4) {
           this.roundStatus = 'end';
           this.stopRound();
           return;
@@ -175,6 +180,11 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   reset(itemNumber?, data?): void {
+    if(this.currentItemNumber === 3 || this.currentItemNumber > 4) {
+      this.roundStatus = 'end';
+      this.stopRound();
+      return;
+    }
     this.responded = false;
     this.word = this.getRandomWord(data);
     this.correctResponse = 0;
@@ -209,7 +219,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         this.timerSubscription.unsubscribe();
         // If still there are more cards, average response time is calculated.
         if(this.currentItemNumber < 3) {
-            this.currentItemNumber++;
+            // this.currentItemNumber++;
             this.responseTimes.push(sec/100);
             this.averageResponseTime = (this.responseTimes.reduce((a, b) => a + b) / this.responseTimes.length).toFixed(2);
         }
@@ -217,6 +227,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         this.progressBarValue = 100;
         this.progressBarColor = "primary";
         this.timerSound.pause();
+        console.log('entro a respndocard');
         this.respondCard(true);
       }
       this.cdr.markForCheck();
@@ -230,6 +241,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
           this.correctSound.play();
           this.correctResponses += 1;
           this.correctResponse = 1;
+          this.currentItemNumber++;
         }
         this.timerSubscription.unsubscribe();
 
@@ -284,8 +296,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
            if (sec === seconds || this.responded === true) {
                sub.unsubscribe();
                // If still there are more cards, average response time is calculated.
-               if(this.currentItemNumber < 4) {
-                   this.currentItemNumber++;
+               if(this.currentItemNumber < 3) {
+                  //  this.currentItemNumber++;
                    this.responseTimes.push(sec/100);
                    this.averageResponseTime = (this.responseTimes.reduce((a, b) => a + b) / this.responseTimes.length).toFixed(2);
                }
@@ -313,6 +325,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
     if (!found) {
       this.numMisses++;
     }
+
+    this.incorrect_manual = true;
     this.checkForEndOfGame();
   }
 
@@ -321,6 +335,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
     // Validate given response by user against correct translation.
     if (!this.win && this.numMisses === this.missesAllowed) {
       this.lost = true;
+      // this.currentItemNumber++;
       this.revealSecret();
       this.incorrectSound.play();
       this.timerSubscription.unsubscribe();
@@ -330,7 +345,9 @@ export class HangmanComponent implements OnInit, OnDestroy {
          
       setTimeout(() => {
         this.loser = false;
-        this.reset(1, this.data_word);      
+        this.respondCard(true);
+        this.incorrect_manual = false;
+        // this.reset(this.currentItemNumber, this.data_word);      
       }, 2000);
     }  
     
