@@ -3,6 +3,7 @@ import { GameComponent } from './game.component';
 import { GameListComponent } from './list/list.component';
 import { FlashCardsComponent } from './flashcards/flashcards.component';
 import { HangmanComponent } from './hangman/hangman.component';
+import { SimonSaysComponent } from './simon-says/simon-says.component';
 
 import { GameCategoriesResolver, GamesResolver, GameResolver, RoundResolver, RoundHangMan } from './game.resolvers';
 
@@ -33,6 +34,14 @@ export const gameRoutes: Route[] = [
             {
                 path     : 'hangman',
                 component: HangmanComponent,
+                runGuardsAndResolvers: 'always',
+                // resolve  : {
+                //     round: RoundHangMan
+                // }
+            },
+            {
+                path     : 'simon-says',
+                component: SimonSaysComponent,
                 runGuardsAndResolvers: 'always',
                 // resolve  : {
                 //     round: RoundHangMan

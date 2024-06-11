@@ -83,7 +83,7 @@ export const courses = [
         description: 'Escucha y escribe la palabra en inglés',
         category   : 'isc',
         timeLimit  : true,
-        available  : false,
+        available  : true,
         wordsRound : 10,
         gameModes  : 'Escuchar, Escribir',
         totalSteps : 11,
