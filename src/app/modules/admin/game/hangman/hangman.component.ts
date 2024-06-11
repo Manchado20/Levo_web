@@ -215,7 +215,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         }
       }
 
-      if (sec === seconds || this.responded === true) {
+      if (sec === seconds || this.responded === true || this.win) {
         this.timerSubscription.unsubscribe();
         // If still there are more cards, average response time is calculated.
         if(this.currentItemNumber < 3) {
@@ -228,7 +228,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
         this.progressBarColor = "primary";
         this.timerSound.pause();
         console.log('entro a respndocard');
-        this.respondCard(true);
+        // this.respondCard(true);
       }
       this.cdr.markForCheck();
 
