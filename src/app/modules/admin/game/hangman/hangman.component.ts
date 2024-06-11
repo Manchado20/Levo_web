@@ -104,9 +104,12 @@ export class HangmanComponent implements OnInit, OnDestroy {
     let correctResponse = false;
     this.currentItemNumber++;
     if(!this.correctResponse) {
-      if(!this.incorrect_manual) {
+      console.log(this.incorrect_manual, '  this.incorrect_manual');
+      if( !this.incorrect_manual ) {
         this.incorrectSound.play();
+        this.incorrect_manual = false;
       }
+        
       this.loser = true;
     }
     this.revealSecret();
@@ -263,6 +266,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
               console.log(error);
           })
           setTimeout(() => {
+            this.incorrect_manual = false;
             this.reset(itemNumber, this.data_word);
             // this.nextWord(this.round.items[this.currentItemNumber]);
           }, 3000);
@@ -326,7 +330,6 @@ export class HangmanComponent implements OnInit, OnDestroy {
       this.numMisses++;
     }
 
-    this.incorrect_manual = true;
     this.checkForEndOfGame();
   }
 
@@ -337,7 +340,10 @@ export class HangmanComponent implements OnInit, OnDestroy {
       this.lost = true;
       // this.currentItemNumber++;
       this.revealSecret();
-      this.incorrectSound.play();
+      if(!this.incorrect_manual) {
+        this.incorrectSound.play();
+        this.incorrect_manual = true;
+      }
       this.timerSubscription.unsubscribe();
       this.progressBarValue = 100;
       this.progressBarColor = "primary";
