@@ -18,13 +18,15 @@ import { GameListComponent } from './list/list.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { FuseCardModule } from '@fuse/components/card';
 import { HangmanComponent } from './hangman/hangman.component';
+import { SimonSaysComponent } from './simon-says/simon-says.component';
 
 @NgModule({
     declarations: [
         GameComponent,
         FlashCardsComponent,
         GameListComponent,
-        HangmanComponent
+        HangmanComponent,
+        SimonSaysComponent
     ],
     imports     : [
         RouterModule.forChild(gameRoutes),

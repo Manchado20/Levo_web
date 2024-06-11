@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean
     {
         const redirectUrl = state.url === '/cerrar-sesion' ? '/' : state.url;
-        return this._check(redirectUrl);
+        return this._check(redirectUrl, route);
     }
 
     /**
@@ -45,7 +45,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad
     canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree
     {
         const redirectUrl = state.url === '/cerrar-sesion' ? '/' : state.url;
-        return this._check(redirectUrl);
+        return this._check(redirectUrl, childRoute);
     }
 
     /**
@@ -56,7 +56,8 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad
      */
     canLoad(route: Route, segments: UrlSegment[]): Observable<boolean> | Promise<boolean> | boolean
     {
-        return this._check('/');
+        const fullPath = segments.map(segment => segment.path).join('/');
+        return this._check(fullPath, route);
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -67,9 +68,11 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad
      * Check the authenticated status
      *
      * @param redirectURL
+     * @param route
+
      * @private
      */
-    private _check(redirectURL: string): Observable<boolean>
+    private _check(redirectURL: string, route?: ActivatedRouteSnapshot | Route): Observable<boolean>
     {
         // Check the authentication status
         return this._authService.check()
@@ -85,6 +88,20 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad
                                // Prevent the access
                                return of(false);
                            }
+
+                              // Additional check for idadmin
+                            const idAdmin = sessionStorage.getItem('isAdmin');
+                            const path = (route instanceof ActivatedRouteSnapshot) 
+                            ? route.routeConfig?.path 
+                            : route?.path;
+
+                            if (idAdmin === '0' && path === 'home') {
+                                // Redirect to a safe route
+                                this._router.navigate(['inicio']);
+
+                                // Prevent the access
+                                return of(false);
+                            }
 
                            // Allow the access
                            return of(true);
