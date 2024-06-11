@@ -43,6 +43,7 @@ export class HangmanComponent implements OnInit, OnDestroy {
   response: string = '';                                  // Response given by user.
   word: any;
   example_word: string = "";
+  loser: boolean = false
 
   data_word:any = [];
   private timerSubscription: Subscription;
@@ -96,11 +97,18 @@ export class HangmanComponent implements OnInit, OnDestroy {
   }
 
   respondCard(skip: boolean): void {
+    let correctResponse = false;
+
+    if(!correctResponse) {
+      this.incorrectSound.play();
+      this.loser = true;
+    }
     this.revealSecret();
     this.timerSubscription.unsubscribe();
     this.progressBarValue = 100;
     this.progressBarColor = "primary";
     this.timerSound.pause();
+
 
     // Sends user response for saving in database.
     let userResponse = {
@@ -127,10 +135,9 @@ export class HangmanComponent implements OnInit, OnDestroy {
       this.currentItem.translation = "";
       this.cdr.markForCheck();
       this.response = "";
-      this.flipSound.play();
       setTimeout(() => {
-        console.log(this.data_word, ' this.data_word RESET');
-          this.reset(1, this.data_word);
+        this.reset(1, this.data_word);
+        this.loser = false;
       }, 200);
   }, 3000);
   }
@@ -289,7 +296,8 @@ export class HangmanComponent implements OnInit, OnDestroy {
       this.progressBarValue = 100;
       this.progressBarColor = "primary";
       setTimeout(() => {
-        this.reset();
+        this.loser = false;
+        this.reset(1, this.data_word);      
       }, 2000);
     }  
     

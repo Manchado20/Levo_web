@@ -23,7 +23,7 @@
                 <div *ngIf="this.win" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-green-500 bg-green-100 dark:text-green-50 dark:bg-green-500">
                     <mat-icon class="text-current" [svgIcon]="'heroicons_solid:badge-check'"></mat-icon>
                 </div>
-                <div *ngIf="!this.win && this.lost" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-red-600 bg-red-100 dark:text-red-50 dark:bg-red-600">
+                <div *ngIf="!this.win && this.lost || this.loser" class="flex flex-0 items-center justify-center w-8 h-8 m-2 rounded-full text-red-600 bg-red-100 dark:text-red-50 dark:bg-red-600">
                     <mat-icon class="text-current" [svgIcon]="'heroicons_solid:exclamation'"></mat-icon>
                 </div>
               </div>
