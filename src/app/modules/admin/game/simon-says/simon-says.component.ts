@@ -153,75 +153,81 @@ export class SimonSaysComponent implements OnInit {
      * Take the user written word in textbox as a response for the flashcard.
      * @returns
      */
-    respondCard(skip: boolean)
-    {
-        this.timerSound.pause();
-        // Give the focus to textbox for responding again.
-        if(this.response.trim() === "" && this.responded === false && !skip) {
-            this.inputResponse.nativeElement.focus();
-            return;
-        }
-
-        // Validate given response by user against correct translation.
-        let correctResponse = false;
-        
-        let respuesta = this.response.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        let respuesta_usuario = this.currentItem.translation.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        console.log(respuesta.toLowerCase().trim(), '  this.response.toLowerCase().trim()');
-        console.log(respuesta_usuario.toLowerCase().trim(), '  respuesta_usuario');
-
-        if(this.response.toLowerCase().trim() === this.currentItem.translation.toLowerCase()) {
-            this.correctResponses += 1;
-            correctResponse = true;
-            console.log('correcto');
-
-        }
-        if(correctResponse) {
-            this.correctSound.play();
-            console.log('correcto 2');
-        } else {
-            this.incorrectSound.play();
-            console.log('incorrecto');
-        }
-
-        // Sends user response for saving in database.
-        let userResponse = {
-            round: this.round._id,
-            correct: correctResponse,
-            time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
-            word: this.currentItem.word,
-            type: this.currentItem.type,
-            translation: this.currentItem.translation
-        };
-        this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
-            .then((response: any) => {
-                /* console.log(response); */
-            }).catch((error: any) => {
-                console.log(error);
-            })
-
-        // Flip flashcard for showing correct response.
-        this.inputResponse.nativeElement.disabled = true;
-        this.responded = true;
-        this.flashcard.face = 'back';
-        this._changeDetectorRef.markForCheck();
-        setTimeout(() => {
-            if(this.currentItemNumber === 10) {
-                this.stopRound();
-                return;
-            }
-            this.currentItem.translation = "";
-            this._changeDetectorRef.markForCheck();
-            this.flashcard.face = 'front';
-            this.response = "";
-            this.flipSound.play();
-            setTimeout(() => {
-                this.inputResponse.nativeElement.disabled = false;
-                this.inputResponse.nativeElement.focus();
-                this.nextCard(this.round.items[this.currentItemNumber]);
-            }, 200);
-        }, 3000);
-    }
+    respondCard(skip: boolean) {
+      this.timerSound.pause();
+      // Give the focus to textbox for responding again.
+      if(this.response.trim() === "" && this.responded === false && !skip) {
+          this.inputResponse.nativeElement.focus();
+          return;
+      }
+  
+      // Validate given response by user against correct translation.
+      let correctResponse = false;
+      
+      // Normalize and compare responses
+      const normalizeString = (str: string) => {
+          return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : '';
+      }
+  
+      const respuesta = normalizeString(this.response);
+      const respuestaUsuario = normalizeString(this.currentItem.translation);
+  
+      console.log(respuesta, '  this.response normalized');
+      console.log(respuestaUsuario, '  this.currentItem.translation normalized');
+  
+      if(respuesta && respuestaUsuario && respuesta === respuestaUsuario) {
+          this.correctResponses += 1;
+          correctResponse = true;
+          console.log('correcto');
+      }
+      
+      if(correctResponse) {
+          this.correctSound.play();
+          console.log('correcto 2');
+      } else {
+          this.incorrectSound.play();
+          console.log('incorrecto');
+      }
+  
+      // Sends user response for saving in database.
+      let userResponse = {
+          round: this.round._id,
+          correct: correctResponse,
+          time: this.progressBarValue < 100 ? this.progressBarTime - ((this.progressBarTime * this.progressBarValue)/100) : 0,
+          word: this.currentItem.word,
+          type: this.currentItem.type,
+          translation: this.currentItem.translation
+      };
+      this._httpClient.post(environment.apiURL+'/response', userResponse).toPromise()
+          .then((response: any) => {
+              /* console.log(response); */
+          }).catch((error: any) => {
+              console.log(error);
+          })
+  
+      // Flip flashcard for showing correct response.
+      this.inputResponse.nativeElement.disabled = true;
+      this.responded = true;
+      this.flashcard.face = 'back';
+      this._changeDetectorRef.markForCheck();
+      setTimeout(() => {
+          if(this.currentItemNumber === 10) {
+              this.stopRound();
+              return;
+          }
+          this.currentItem.translation = "";
+          this._changeDetectorRef.markForCheck();
+          this.flashcard.face = 'front';
+          this.response = "";
+          this.flipSound.play();
+          setTimeout(() => {
+              this.inputResponse.nativeElement.disabled = false;
+              this.inputResponse.nativeElement.focus();
+              this.nextCard(this.round.items[this.currentItemNumber]);
+          }, 200);
+      }, 3000);
+  }
+  
 
     /**
      * Start a new round.
@@ -234,6 +240,7 @@ export class SimonSaysComponent implements OnInit {
             .subscribe((round: Round) => {
                 this.round = round;
                 this.currentItemNumber = 0;
+                console.log(this.round.items, ' this.round.items');
                 this.nextCard(this.round.items[this.currentItemNumber]);
             });
     }
@@ -277,6 +284,10 @@ export class SimonSaysComponent implements OnInit {
         this.round = {};
         this.response = '';
         this._changeDetectorRef.markForCheck();
+    }
+
+    listenWord() {
+      this.speech(this.currentItem.word);
     }
 
     /**

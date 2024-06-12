@@ -43,9 +43,9 @@ export const gameRoutes: Route[] = [
                 path     : 'simon-says',
                 component: SimonSaysComponent,
                 runGuardsAndResolvers: 'always',
-                // resolve  : {
-                //     round: RoundHangMan
-                // }
+                resolve  : {
+                    round: RoundResolver
+                }
             }
         ]
     }
