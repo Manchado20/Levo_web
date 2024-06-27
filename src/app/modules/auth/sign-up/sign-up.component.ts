@@ -117,9 +117,9 @@ export class AuthSignUpComponent implements OnInit
 
                                 const myConfetti = confetti.create(canvas, { resize: true });
                                 myConfetti({
-                                particleCount: 100,
-                                spread: 70,
-                                origin: { y: 0.6 }
+                                    particleCount: 100,
+                                    spread: 70,
+                                    origin: { y: 0.6 }
                                 });
                             },
                             willClose: () => {

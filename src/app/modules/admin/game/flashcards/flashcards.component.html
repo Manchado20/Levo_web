@@ -47,7 +47,21 @@
                             <div class="flex flex-col h-full justify-center items-center">
                                 <div class="text-4xl sm:text-4xl lg:text-5xl font-bold pb-10">{{currentItem.translation}}</div>
                             </div>
+                            <div class="flex flex-col flex-auto min-w-0">
+                                <!-- Tu código existente -->
+            
+                                <!-- Contenedor para el GIF -->
+                                <div id="gif-container" class="gif-container" [ngClass]="{'show': showGif}">
+                                    <img id="animated-gif" class="animated-gif" src="../../../../../assets/gifs/oops.gif" alt="Animated GIF">
+                                </div>
+                                <div id="gif-container2" class="gif-container" [ngClass]="{'show': showGif2}">
+                                    <img id="animated-gif2" class="animated-gif" src="../../../../../assets/gifs/pom.gif" alt="Animated GIF">
+                                </div>
+                            </div>
                         </ng-container>
+
+                        
+                        
                     </fuse-card>
                 </div>
             </div>
@@ -126,4 +140,5 @@
         </div>
 
 </div>
+
 

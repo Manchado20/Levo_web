@@ -15,10 +15,12 @@ import { AuthUtils } from 'app/core/auth/auth.utils';
 import { FlipSound } from 'app/lib/sound/flipsound';
 import { CorrectSound } from 'app/lib/sound/correctsound';
 import { IncorrectSound } from 'app/lib/sound/incorrectsound';
+import confetti from 'canvas-confetti';
 
 @Component({
     selector       : 'game-flashcards',
     templateUrl    : './flashcards.component.html',
+    styleUrls: ['./flashcards.component.scss'],
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -50,6 +52,8 @@ export class FlashCardsComponent implements OnInit, OnDestroy
     flipSound: FlipSound;
     correctSound: CorrectSound;
     incorrectSound: IncorrectSound
+    showGif = false;
+    showGif2 = false;
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -121,7 +125,7 @@ export class FlashCardsComponent implements OnInit, OnDestroy
         this.responded = false;
         this.progressBarColor = "primary";
         const timer = interval(10);
-        const seconds = this.progressBarTime * 100;
+        const seconds = this.progressBarTime * 1111111111100;
         this.speech(this.currentItem.word);
         const sub = timer.subscribe((sec) => {
             this.progressBarValue = 100 - sec * 100 / seconds;
@@ -177,14 +181,27 @@ export class FlashCardsComponent implements OnInit, OnDestroy
         if(this.response.toLowerCase().trim() === this.currentItem.translation.toLowerCase()) {
             this.correctResponses += 1;
             correctResponse = true;
-            console.log('correcto');
-
         }
         if(correctResponse) {
+            confetti({
+                particleCount: 100,
+                spread: 170,
+                origin: { x: 0.6, y: 0.3 }, // Mueve el confeti hacia la derecha
+            });
             this.correctSound.play();
-            console.log('correcto 2');
-        } else {
+            this.showGif2 = true;
+            setTimeout(() => {
+                this.showGif2 = false;
+                this._changeDetectorRef.markForCheck();
+            }, 3000);        
+        } 
+        else {
             this.incorrectSound.play();
+            this.showGif = true;
+            setTimeout(() => {
+                this.showGif = false;
+                this._changeDetectorRef.markForCheck();
+            }, 3000);
             console.log('incorrecto');
         }
 

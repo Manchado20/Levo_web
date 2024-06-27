@@ -1,0 +1,42 @@
+.gif-container {
+    position: absolute;
+    bottom: 0px; /* Centrando verticalmente */
+    right: 0;
+    top: 55px;
+    overflow: hidden;
+    // transform: translate(-50%, -50%); /* Ajuste para centrar */
+    z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
+    transition: opacity 1s ease-in-out;
+}
+
+
+.animated-gif {
+    width: 130px; /* Ajusta el tamaño según tus necesidades */
+    height: auto;
+}
+
+
+#gif-container.show {
+    opacity: 1;
+}
+
+#gif-container {
+    display: none;
+}
+
+#gif-container.show {
+    display: block;
+}
+
+
+#gif-container2.show {
+    opacity: 1;
+}
+
+#gif-container2 {
+    display: none;
+}
+
+#gif-container2.show {
+    display: block;
+}
