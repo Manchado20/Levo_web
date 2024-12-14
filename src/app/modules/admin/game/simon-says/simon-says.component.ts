@@ -168,9 +168,12 @@ export class SimonSaysComponent implements OnInit {
       const normalizeString = (str: string) => {
           return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim() : '';
       }
+
+      console.log(this.response, '  this.response');
+      console.log(this.currentItem, '  this.currentItem');
   
-      const respuesta = normalizeString(this.response);
-      const respuestaUsuario = normalizeString(this.currentItem.translation);
+      const respuesta = normalizeString(this.currentItem.word);
+      const respuestaUsuario = normalizeString(this.response);
   
       console.log(respuesta, '  this.response normalized');
       console.log(respuestaUsuario, '  this.currentItem.translation normalized');
