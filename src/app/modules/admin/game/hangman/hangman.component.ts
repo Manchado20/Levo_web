@@ -11,6 +11,7 @@ import { IncorrectSound } from 'app/lib/sound/incorrectsound';
 import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
+import { HostListener } from '@angular/core';
 
 @Component({
   selector: 'app-hangman',
@@ -96,6 +97,16 @@ export class HangmanComponent implements OnInit, OnDestroy {
     //       console.log(this.round);
     //       // this.nextWord(this.round.items[this.currentItemNumber]);
     //     });
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    const keyPressed = event.key.toLowerCase(); // Captura la tecla pulsada y la convierte a minúscula
+    const foundLetter = this.letters.find(letter => letter.name === keyPressed && !letter.chosen);
+
+    if (foundLetter) {
+      this.try(foundLetter); // Llama a la función `try` para procesar la letra seleccionada
+    }
   }
 
   respondCard(skip: boolean): void {
